@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="모터 PI 속도루프의 목표 속도 도달·정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 시뮬레이션입니다.">
+<link rel="canonical" href="https://designmargin.github.io/pi-speed-loop/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="designmargin">
+<meta property="og:title" content="모터 PI 속도루프 계산기">
+<meta property="og:description" content="모터 PI 속도루프의 목표 속도 도달·정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 시뮬레이션입니다.">
+<meta property="og:url" content="https://designmargin.github.io/pi-speed-loop/">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<style>
+html{color-scheme:light dark}
+*{box-sizing:border-box}
+img{max-width:100%;height:auto}
+[hidden]{display:none!important}
+</style>
+<title>모터 PI 속도루프 계산기 | designmargin</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#EEF1F3;--surface:#FFFFFF;--surface-2:#F6F8F9;
+  --ink:#151A1E;--muted:#5D6A74;--faint:#8A96A0;
+  --line:#D6DDE2;--line-strong:#B8C3CA;--grid:#E4E9EC;
+  --copper:#9C5227;--copper-soft:#F3E7DF;
+  --signal:#0E6E63;--signal-soft:#DDEEEB;
+  --crit:#A82A20;--crit-soft:#F7E3E1;
+  --warn:#8A5A08;--warn-soft:#FAEFD8;
+  --shadow:0 1px 2px rgba(20,30,38,.06),0 8px 24px -12px rgba(20,30,38,.18);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111619;--surface:#181E22;--surface-2:#1E252A;
+  --ink:#E7EDF0;--muted:#9BA9B3;--faint:#71808A;
+  --line:#2B3439;--line-strong:#3C474E;--grid:#242D33;
+  --copper:#E09763;--copper-soft:#31221A;
+  --signal:#54C6B5;--signal-soft:#152B29;
+  --crit:#E8776B;--crit-soft:#2E1A18;
+  --warn:#D9A441;--warn-soft:#2C2314;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --ground:#111619;--surface:#181E22;--surface-2:#1E252A;
+  --ink:#E7EDF0;--muted:#9BA9B3;--faint:#71808A;
+  --line:#2B3439;--line-strong:#3C474E;--grid:#242D33;
+  --copper:#E09763;--copper-soft:#31221A;
+  --signal:#54C6B5;--signal-soft:#152B29;
+  --crit:#E8776B;--crit-soft:#2E1A18;
+  --warn:#D9A441;--warn-soft:#2C2314;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 20px 64px}
+
+.masthead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 24px;
+  padding-bottom:18px;border-bottom:2px solid var(--ink);margin-bottom:28px}
+.masthead h1{margin:0;font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.masthead .en{display:block;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--copper);margin-bottom:6px}
+.masthead p{margin:0;max-width:47ch;color:var(--muted);font-size:13.5px;line-height:1.5}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
+.panel-hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);border-radius:4px 4px 0 0}
+.panel-hd h2{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.panel-hd .en{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.panel-bd{padding:16px}
+
+.cols{display:grid;grid-template-columns:minmax(290px,352px) 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+
+.grp{margin:0 0 18px}.grp:last-child{margin-bottom:0}
+.grp-t{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--copper);padding-bottom:6px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:7px 0}
+.row+.row{border-top:1px dotted var(--line)}
+.lab b{display:block;font-weight:500;font-size:13.5px;line-height:1.3}
+.lab span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--faint);margin-top:1px}
+.ctl{display:flex;gap:5px;align-items:center;justify-self:end}
+.unit{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+input[type=number],select{font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-variant-numeric:tabular-nums;
+  color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:3px;padding:5px 7px;height:32px}
+input[type=number]{width:84px;text-align:right}
+select{max-width:126px;cursor:pointer}
+select.u{font-size:11.5px;color:var(--muted);border-color:var(--line);background:var(--surface-2);max-width:112px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--copper);outline-offset:1px}
+label.chk{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;padding:8px 0}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--copper);cursor:pointer;margin:0}
+.btn{font:inherit;font-size:12.5px;font-weight:500;background:var(--copper);color:#fff;border:0;
+  border-radius:3px;padding:8px 12px;cursor:pointer;width:100%;margin-top:10px}
+.btn:hover{filter:brightness(1.08)}
+
+.answer{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 28px;padding:18px 16px 16px;border-bottom:1px solid var(--line)}
+.answer .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--faint);display:block;margin-bottom:2px}
+.big{font-family:"IBM Plex Mono",monospace;font-size:clamp(30px,5vw,46px);font-weight:600;
+  line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.big em{font-style:normal;font-size:.36em;font-weight:500;color:var(--muted);margin-left:4px}
+.sub{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:5px 11px;border-radius:2px;border:1px solid}
+.chip.ok{color:var(--signal);background:var(--signal-soft);border-color:var(--signal)}
+.chip.no{color:var(--crit);background:var(--crit-soft);border-color:var(--crit)}
+.chip.wa{color:var(--warn);background:var(--warn-soft);border-color:var(--warn)}
+
+.chartbox{padding:12px 14px 6px;position:relative;border-bottom:1px solid var(--line)}
+.chartbox:last-child{border-bottom:0}
+.charthd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:2px}
+.charthd h3{margin:0;font-size:12.5px;font-weight:600}
+.charthd .rt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.chartbox svg{display:block;width:100%;height:auto;touch-action:none}
+.tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-100%);
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:3px;
+  box-shadow:var(--shadow);padding:6px 9px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  white-space:nowrap;font-variant-numeric:tabular-nums;z-index:5;color:var(--ink)}
+.tip b{color:var(--copper)}
+.tip.on{opacity:1}
+
+.kv{display:grid;grid-template-columns:1fr auto;gap:5px 12px;font-size:13px}
+.kv dt{color:var(--muted);min-width:0}
+.kv dt span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);display:block}
+.kv dd{margin:0;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-weight:500}
+.kv dd em{font-style:normal;color:var(--faint);font-size:11px;margin-left:3px;font-weight:400}
+.kv .sep{grid-column:1/-1;border-top:1px dotted var(--line);margin:4px 0}
+.kv dd.bad{color:var(--crit)}.kv dd.good{color:var(--signal)}.kv dd.warn{color:var(--warn)}
+
+.strip{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+@media(max-width:900px){.strip{grid-template-columns:1fr}}
+.note{margin:20px 0 0;padding:14px 16px;border-left:3px solid var(--copper);background:var(--surface);
+  border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  border-radius:0 4px 4px 0;font-size:13px;color:var(--muted);max-width:80ch}
+.note b{color:var(--ink);font-weight:600}
+
+footer{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+footer h3{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 8px;font-weight:500}
+footer ul{margin:0 0 18px;padding-left:18px}footer li{margin-bottom:4px}
+footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;padding:10px 12px;overflow-x:auto;white-space:nowrap;margin-bottom:6px}
+.disc{font-size:11.5px;color:var(--faint);max-width:80ch}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <span class="en">Motor Speed Loop · PI Step Response</span>
+      <h1>모터 PI 속도루프 계산기</h1>
+    </div>
+    <p>목표 속도까지 <b>몇 초</b> 걸리는지 계산합니다. 게인을 아무리 올려도 더는 안 빨라지는 지점이 있는데, 그 지점이 어디인지도 같이 보여 줍니다.</p>
+  </header>
+
+  <div class="cols">
+
+    <!-- INPUTS -->
+    <section class="panel">
+      <div class="panel-hd"><h2>입력</h2><span class="en">Inputs</span></div>
+      <div class="panel-bd">
+
+        <div class="grp">
+          <div class="grp-t">Step · 명령</div>
+          <div class="row">
+            <div class="lab"><b>목표 속도</b><span>Speed command</span></div>
+            <div class="ctl"><input type="number" id="tgt" value="3000" step="100" min="1"><span class="unit">rpm</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>시작 속도</b><span>Initial speed</span></div>
+            <div class="ctl"><input type="number" id="w0" value="0" step="100" min="0"><span class="unit">rpm</span></div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-t">Plant · 모터와 부하</div>
+          <div class="row">
+            <div class="lab"><b>관성</b><span>Total inertia J — rotor + load</span></div>
+            <div class="ctl">
+              <input type="number" id="J" value="2000" step="10" min="0.0001">
+              <select class="u" id="JU">
+                <option value="0.0000001" selected>g·cm²</option>
+                <option value="0.0001">kg·cm²</option>
+                <option value="1">kg·m²</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>토크 상수 Kt</b><span>Torque constant</span></div>
+            <div class="ctl"><input type="number" id="Kt" value="0.06" step="0.001" min="0.0001"><span class="unit">N·m/A</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>부하 토크</b><span>Load torque TL — constant</span></div>
+            <div class="ctl"><input type="number" id="TL" value="0.05" step="0.01" min="0"><span class="unit">N·m</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>점성 마찰 B</b><span>Viscous friction</span></div>
+            <div class="ctl"><input type="number" id="B" value="0.00001" step="0.00001" min="0"><span class="unit">N·m·s</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>전류 제한</b><span>Current limit — the real ceiling</span></div>
+            <div class="ctl"><input type="number" id="Imax" value="12" step="0.5" min="0.1"><span class="unit">A</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>전류루프 시정수</b><span>Current loop time constant</span></div>
+            <div class="ctl"><input type="number" id="ti" value="1" step="0.1" min="0.01"><span class="unit">ms</span></div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp-t">Controller · PI 게인</div>
+          <div class="row">
+            <div class="lab"><b>Kp</b><span>Proportional</span></div>
+            <div class="ctl">
+              <input type="number" id="Kp" value="0.42" step="0.01" min="0">
+              <select class="u" id="KpU">
+                <option value="1" selected>A/(rad/s)</option>
+                <option value="0.00954930">A/krpm</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>Ki</b><span>Integral</span></div>
+            <div class="ctl">
+              <input type="number" id="Ki" value="13" step="0.5" min="0">
+              <select class="u" id="KiU">
+                <option value="1" selected>A/(rad/s)/s</option>
+                <option value="0.00954930">A/krpm/s</option>
+              </select>
+            </div>
+          </div>
+          <label class="chk"><input type="checkbox" id="aw" checked> 안티와인드업 (적분 포화 방지)</label>
+
+          <div class="row" style="border-top:1px dotted var(--line)">
+            <div class="lab"><b>목표 대역폭</b><span>Design target — bandwidth</span></div>
+            <div class="ctl"><input type="number" id="fbw" value="10" step="1" min="0.1"><span class="unit">Hz</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>목표 감쇠비 ζ</b><span>Damping ratio</span></div>
+            <div class="ctl"><input type="number" id="zeta" value="1" step="0.05" min="0.1"></div>
+          </div>
+          <button class="btn" type="button" id="design">이 조건으로 Kp · Ki 계산해 넣기</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="panel">
+      <div class="panel-hd"><h2>응답</h2><span class="en">Step response</span></div>
+
+      <div class="answer">
+        <div>
+          <span class="k">정착 시간 ±2% · Settling</span>
+          <div class="big" id="tSet">—<em>ms</em></div>
+        </div>
+        <div>
+          <span class="k">이론 최소 · Torque-limited floor</span>
+          <div class="sub" id="tMin">—</div>
+        </div>
+        <div>
+          <span class="k">오버슈트 · Overshoot</span>
+          <div class="sub" id="ovs">—</div>
+        </div>
+        <div id="verdict"></div>
+      </div>
+
+      <div class="chartbox">
+        <div class="charthd"><h3>속도 <span style="color:var(--faint);font-weight:400">Speed</span></h3>
+          <span class="rt">rpm · 점선 = 목표 · 띠 = ±2%</span></div>
+        <svg id="cSpd" viewBox="0 0 660 210" role="img" aria-label="속도 응답 그래프"></svg>
+        <div class="tip" id="tipS"></div>
+      </div>
+
+      <div class="chartbox">
+        <div class="charthd"><h3>전류 <span style="color:var(--faint);font-weight:400">Current</span></h3>
+          <span class="rt">A · 점선 = 전류 제한</span></div>
+        <svg id="cCur" viewBox="0 0 660 170" role="img" aria-label="전류 응답 그래프"></svg>
+        <div class="tip" id="tipC"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="strip">
+    <section class="panel">
+      <div class="panel-hd"><h2>응답 지표</h2><span class="en">Response metrics</span></div>
+      <div class="panel-bd"><dl class="kv" id="metrics"></dl></div>
+    </section>
+    <section class="panel">
+      <div class="panel-hd"><h2>루프 특성</h2><span class="en">Loop characteristics</span></div>
+      <div class="panel-bd"><dl class="kv" id="loop"></dl></div>
+    </section>
+  </div>
+
+  <p class="note" id="advice"></p>
+
+  <footer>
+    <h3>쓰는 식 · Equations</h3>
+    <div class="eq">기계계 &nbsp; J · dω/dt = Kt · i − B · ω − TL</div>
+    <div class="eq">제어기 &nbsp; i_ref = Kp · e + ∫ Ki · e dt &nbsp;&nbsp;(e = ω* − ω) &nbsp;→&nbsp; i_cmd = clamp(i_ref, ±Imax)</div>
+    <div class="eq">전류루프 &nbsp; di/dt = (i_cmd − i) ÷ τi &nbsp;&nbsp;|&nbsp;&nbsp; 토크 한계 최소시간 &nbsp; t = J · Δω ÷ (Kt · Imax − TL)</div>
+    <div class="eq">선형 구간 &nbsp; ωn = √(Kt · Ki ÷ J) &nbsp;&nbsp;|&nbsp;&nbsp; ζ = (Kt · Kp + B) ÷ (2 √(Kt · Ki · J))</div>
+
+    <h3>읽는 법 · How to read this</h3>
+    <ul>
+      <li><b>큰 스텝에서 도달 시간을 정하는 것은 게인이 아니라 전류 제한입니다.</b> 명령이 크면 PI 출력이 바로 제한에 걸리고, 그때부터는 모터가 낼 수 있는 최대 토크로 가속할 뿐입니다. 게인을 두 배로 올려도 이 구간은 1 ms 도 안 줄어듭니다</li>
+      <li><b>게인이 정하는 것은 그 뒤 구간입니다</b> — 제한에서 빠져나온 뒤 목표에 얼마나 깔끔하게 붙는가. 오버슈트와 정착 시간이 여기서 갈립니다</li>
+      <li><b>안티와인드업을 꺼 보십시오.</b> 포화 동안 적분기가 계속 쌓여서, 목표에 닿아도 한참을 지나쳐 갑니다. 실제 제어기에서 가장 흔한 버그입니다</li>
+      <li><b>더 빠르게 하려면</b> — 전류 제한을 올리거나(FET·션트 정격 확인), 관성을 줄이거나, Kt 가 큰 모터를 씁니다. 게인 튜닝은 마지막입니다</li>
+      <li>속도루프 대역폭은 보통 전류루프 대역폭의 <b>1/5 ~ 1/10</b> 로 잡습니다. 그보다 올리면 두 루프가 서로 간섭합니다</li>
+    </ul>
+
+    <h3>이 모델이 다루지 않는 것 · Model limits</h3>
+    <ul>
+      <li>전류루프를 1차 지연으로만 근사합니다. 실제는 PI + PWM 지연 + 샘플링 지연이 있습니다</li>
+      <li>속도 피드백의 분해능·필터 지연(홀센서·엔코더·센서리스 추정)을 넣지 않았습니다. 실제로는 이것이 대역폭을 제한하는 일이 많습니다</li>
+      <li>이산화(샘플링 주기) 효과를 무시한 연속시간 모델입니다</li>
+      <li>부하 토크를 일정하게 봅니다. 팬·펌프처럼 속도의 제곱에 비례하는 부하는 다르게 나옵니다</li>
+      <li>전압 천장(역기전압 포화)은 넣지 않았습니다 — 고속에서는 전류 제한보다 전압이 먼저 걸립니다</li>
+    </ul>
+
+    <p class="disc"><b>면책</b> — 개념 확인과 초기 검토용입니다. 실제 게인은 실기 튜닝으로 확정하십시오. 사용에 따른 결과에 대해 책임지지 않습니다. · <b>Disclaimer</b> — For concept checking and early-stage estimation only; confirm gains on real hardware.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var RPM = Math.PI * 2 / 60;              // rpm -> rad/s
+
+  function fmt(v,d){ return isFinite(v) ? v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}) : "—"; }
+  function ms(t){ return !isFinite(t) ? "—" : t < 1 ? fmt(t*1000,1)+" ms" : fmt(t,3)+" s"; }
+
+  function read(){
+    return {
+      tgt:+$("tgt").value * RPM,
+      w0:+$("w0").value * RPM,
+      J:+$("J").value * +$("JU").value,
+      Kt:+$("Kt").value,
+      TL:+$("TL").value,
+      B:+$("B").value,
+      Imax:+$("Imax").value,
+      ti:+$("ti").value / 1000,
+      Kp:+$("Kp").value * +$("KpU").value,
+      Ki:+$("Ki").value * +$("KiU").value,
+      aw:$("aw").checked
+    };
+  }
+
+  function simulate(p){
+    var dw = p.tgt - p.w0;
+    var acc = p.Kt * p.Imax - p.TL - p.B * p.tgt;
+    var tFloor = acc > 0 ? p.J * dw / acc : Infinity;
+    var T = isFinite(tFloor) ? Math.min(Math.max(tFloor * 6 + p.ti * 20, 0.02), 20) : 2;
+
+    var N = 6000;
+    var dt = Math.min(T / N, p.ti / 12);
+    var steps = Math.min(Math.ceil(T / dt), 400000);
+    T = steps * dt;
+
+    var w = p.w0, xi = 0, i = 0;
+    var stride = Math.max(1, Math.floor(steps / 700));
+    var pts = [], band = p.tgt * 0.02, satTime = 0;
+    var tSet = NaN, peak = p.w0, tRise10 = NaN, tRise90 = NaN;
+    var lo = p.w0 + dw * 0.1, hi = p.w0 + dw * 0.9;
+
+    for (var s = 0; s <= steps; s++){
+      var t = s * dt;
+      var e = p.tgt - w;
+      var iref = p.Kp * e + xi;
+      var icmd = Math.max(-p.Imax, Math.min(p.Imax, iref));
+      var sat = icmd !== iref;
+      if (sat) satTime += dt;
+      // integrate the integrator unless anti-windup says freeze
+      if (!(p.aw && sat && (e > 0) === (iref > 0))) xi += p.Ki * e * dt;
+      // current loop lag
+      i += (icmd - i) / p.ti * dt;
+      // mechanics
+      w += (p.Kt * i - p.B * w - p.TL) / p.J * dt;
+
+      if (w > peak) peak = w;
+      if (!isFinite(tRise10) && dw > 0 && w >= lo) tRise10 = t;
+      if (!isFinite(tRise90) && dw > 0 && w >= hi) tRise90 = t;
+      if (Math.abs(p.tgt - w) > band) tSet = NaN; else if (!isFinite(tSet)) tSet = t;
+
+      if (s % stride === 0) pts.push([t, w / RPM, i]);
+    }
+    pts.push([T, w / RPM, i]);
+
+    return {
+      pts:pts, T:T, tFloor:tFloor, tSet:tSet, satTime:satTime,
+      overshoot: dw > 0 ? Math.max(0, (peak - p.tgt) / dw * 100) : 0,
+      tRise: (isFinite(tRise90) && isFinite(tRise10)) ? tRise90 - tRise10 : NaN,
+      wEnd: w / RPM, iEnd: i, reached: Math.abs(p.tgt - w) <= band
+    };
+  }
+
+  /* ---------- chart ---------- */
+  function niceMax(v){
+    if (v <= 0) return 1;
+    var e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+  }
+
+  function chart(svg, pts, idx, opt){
+    var W = 660, H = opt.h, L = 54, R = 12, Tp = 12, Bt = 26;
+    var pw = W - L - R, ph = H - Tp - Bt;
+    var xmax = opt.T || 1;
+    var vals = pts.map(function(p){ return p[idx]; });
+    var vmax = Math.max.apply(null, vals.concat(opt.refs || []));
+    var vmin = Math.min.apply(null, vals.concat([0]));
+    var top = niceMax(vmax * 1.12) || 1;
+    var bot = vmin < 0 ? -niceMax(-vmin * 1.15) : 0;
+    var X = function(t){ return L + t / xmax * pw; };
+    var Y = function(v){ return Tp + (top - v) / (top - bot) * ph; };
+
+    var e = [];
+    // ±2% band
+    if (opt.band){
+      var y1 = Y(opt.band[1]), y2 = Y(opt.band[0]);
+      e.push('<rect x="'+L+'" y="'+y1.toFixed(1)+'" width="'+pw+'" height="'+Math.max(1,(y2-y1)).toFixed(1)+'" fill="var(--signal)" opacity="0.10"/>');
+    }
+    // grid + y labels
+    for (var g = 0; g <= 4; g++){
+      var v = bot + (top - bot) * g / 4, y = Y(v);
+      e.push('<line x1="'+L+'" y1="'+y.toFixed(1)+'" x2="'+(W-R)+'" y2="'+y.toFixed(1)+'" stroke="var(--grid)" stroke-width="1"/>');
+      e.push('<text x="'+(L-8)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="10">'+fmt(v, opt.dec)+'</text>');
+    }
+    // x labels
+    for (var k = 0; k <= 4; k++){
+      var tt = xmax * k / 4, x = X(tt);
+      e.push('<text x="'+x.toFixed(1)+'" y="'+(H-8)+'" text-anchor="'+(k===0?"start":k===4?"end":"middle")+'" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="10">'+(xmax<1?fmt(tt*1000,0)+(k===4?" ms":""):fmt(tt,2)+(k===4?" s":""))+'</text>');
+    }
+    // reference lines
+    (opt.refs || []).forEach(function(rv){
+      e.push('<line x1="'+L+'" y1="'+Y(rv).toFixed(1)+'" x2="'+(W-R)+'" y2="'+Y(rv).toFixed(1)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>');
+    });
+    // axis
+    e.push('<line x1="'+L+'" y1="'+Y(bot).toFixed(1)+'" x2="'+(W-R)+'" y2="'+Y(bot).toFixed(1)+'" stroke="var(--line-strong)" stroke-width="1"/>');
+    // series
+    var d = "";
+    pts.forEach(function(p, n){ d += (n ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[idx]).toFixed(1) + " "; });
+    e.push('<path d="'+d+'" fill="none" stroke="'+opt.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>');
+    // crosshair
+    e.push('<g id="'+opt.cid+'" opacity="0"><line y1="'+Tp+'" y2="'+(Tp+ph)+'" stroke="var(--line-strong)" stroke-width="1"/>'
+         + '<circle r="4.5" fill="'+opt.color+'" stroke="var(--surface)" stroke-width="2"/></g>');
+
+    svg.innerHTML = e.join("");
+    return {X:X, Y:Y, L:L, R:R, W:W, pw:pw, xmax:xmax};
+  }
+
+  function hover(svg, tip, geo, pts, idx, unit, dec, cid){
+    function move(ev){
+      var r = svg.getBoundingClientRect();
+      var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      var vx = (cx - r.left) / r.width * geo.W;
+      var t = Math.max(0, Math.min(geo.xmax, (vx - geo.L) / geo.pw * geo.xmax));
+      var best = pts[0], bd = Infinity;
+      for (var n = 0; n < pts.length; n++){
+        var dd = Math.abs(pts[n][0] - t);
+        if (dd < bd){ bd = dd; best = pts[n]; }
+      }
+      var g = svg.querySelector("#" + cid);
+      if (!g) return;
+      var px = geo.X(best[0]), py = geo.Y(best[idx]);
+      g.setAttribute("opacity", "1");
+      g.querySelector("line").setAttribute("x1", px); g.querySelector("line").setAttribute("x2", px);
+      g.querySelector("circle").setAttribute("cx", px); g.querySelector("circle").setAttribute("cy", py);
+      tip.classList.add("on");
+      tip.style.left = (px / geo.W * r.width) + "px";
+      tip.style.top  = (py / (svg.viewBox.baseVal.height) * r.height - 8) + "px";
+      tip.innerHTML = (best[0] < 1 ? fmt(best[0]*1000,1)+" ms" : fmt(best[0],3)+" s") + " &nbsp; <b>" + fmt(best[idx], dec) + " " + unit + "</b>";
+    }
+    function out(){
+      var g = svg.querySelector("#" + cid);
+      if (g) g.setAttribute("opacity", "0");
+      tip.classList.remove("on");
+    }
+    svg.onmousemove = move; svg.onmouseleave = out;
+    svg.ontouchmove = function(ev){ move(ev); };
+    svg.ontouchend = out;
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var p = read();
+    var r = simulate(p);
+    var tgtRpm = p.tgt / RPM;
+
+    $("tSet").innerHTML = r.reached && isFinite(r.tSet)
+      ? (r.tSet < 1 ? fmt(r.tSet*1000,0)+'<em>ms</em>' : fmt(r.tSet,2)+'<em>s</em>')
+      : '도달 못함<em></em>';
+    $("tMin").textContent = ms(r.tFloor);
+    $("ovs").textContent = fmt(r.overshoot,1) + " %";
+
+    var satFrac = isFinite(r.tSet) && r.tSet > 0 ? r.satTime / r.tSet : 1;
+    var vd = $("verdict");
+    if (!r.reached){
+      vd.innerHTML = '<span class="chip no">목표에 도달하지 못합니다</span>';
+    } else if (satFrac > 0.6){
+      vd.innerHTML = '<span class="chip wa">전류 제한이 지배 — 게인을 올려도 안 빨라집니다</span>';
+    } else if (r.overshoot > 20){
+      vd.innerHTML = '<span class="chip no">오버슈트 과다 — 게인을 낮추십시오</span>';
+    } else {
+      vd.innerHTML = '<span class="chip ok">안정적인 응답입니다</span>';
+    }
+
+    var gS = chart($("cSpd"), r.pts, 1, {
+      h:210, T:r.T, color:"var(--copper)", dec:0, cid:"chS",
+      refs:[tgtRpm], band:[tgtRpm*0.98, tgtRpm*1.02]
+    });
+    hover($("cSpd"), $("tipS"), gS, r.pts, 1, "rpm", 0, "chS");
+
+    var gC = chart($("cCur"), r.pts, 2, {
+      h:170, T:r.T, color:"var(--signal)", dec:1, cid:"chC", refs:[p.Imax]
+    });
+    hover($("cCur"), $("tipC"), gC, r.pts, 2, "A", 2, "chC");
+
+    // metrics
+    var m = "";
+    function kv(t, dl, en, val, cls){ m += '<dt>'+dl+'<span>'+en+'</span></dt><dd'+(cls?' class="'+cls+'"':'')+'>'+val+'</dd>'; }
+    kv(0,"정착 시간 ±2%","Settling time", r.reached ? ms(r.tSet) : "—", r.reached ? "good" : "bad");
+    kv(0,"상승 시간 10→90%","Rise time", ms(r.tRise));
+    kv(0,"이론 최소 시간","Torque-limited floor — cannot beat this", ms(r.tFloor));
+    kv(0,"오버슈트","Overshoot", fmt(r.overshoot,1)+' <em>%</em>', r.overshoot>20?"bad":r.overshoot>5?"warn":"good");
+    m += '<div class="sep"></div>';
+    kv(0,"전류 포화 시간","Time in current limit", ms(r.satTime),
+       satFrac>0.6?"warn":"");
+    kv(0,"포화가 차지하는 비중","Share of settling time", fmt(Math.min(satFrac,1)*100,0)+' <em>%</em>');
+    kv(0,"정상상태 전류","Steady-state current", fmt(r.iEnd,2)+' <em>A</em>');
+    kv(0,"정상상태 속도","Final speed", fmt(r.wEnd,0)+' <em>rpm</em>');
+    $("metrics").innerHTML = m;
+
+    // loop characteristics (linear region)
+    var wn = Math.sqrt(p.Kt * p.Ki / p.J);
+    var ze = (p.Kt * p.Kp + p.B) / (2 * Math.sqrt(p.Kt * p.Ki * p.J));
+    var fi = 1 / (2 * Math.PI * p.ti);
+    var l = "";
+    function lv(dl, en, val, cls){ l += '<dt>'+dl+'<span>'+en+'</span></dt><dd'+(cls?' class="'+cls+'"':'')+'>'+val+'</dd>'; }
+    lv("고유 진동수 ωn","Natural frequency", fmt(wn,1)+' <em>rad/s</em>');
+    lv("대역폭 (근사)","Speed loop bandwidth", fmt(wn/(2*Math.PI),2)+' <em>Hz</em>');
+    lv("감쇠비 ζ","Damping ratio", fmt(ze,3),
+       ze < 0.5 ? "bad" : ze < 0.65 ? "warn" : "good");
+    lv("감쇠 성격","Character", ze<0.99?"부족감쇠 underdamped":ze<1.01?"임계감쇠 critical":"과감쇠 overdamped");
+    l += '<div class="sep"></div>';
+    lv("전류루프 대역폭","Current loop — 1/(2π·τi)", fmt(fi,0)+' <em>Hz</em>');
+    lv("루프 분리비","Current ÷ speed bandwidth", fmt(fi/(wn/(2*Math.PI)),1)+' <em>배</em>',
+       (fi/(wn/(2*Math.PI))) < 5 ? "bad" : "good");
+    lv("Kp","in A/krpm", fmt(p.Kp/0.00954930,2)+' <em>A/krpm</em>');
+    lv("Ki","in A/krpm/s", fmt(p.Ki/0.00954930,1)+' <em>A/krpm/s</em>');
+    $("loop").innerHTML = l;
+
+    // advice
+    var a = $("advice"), msg = [];
+    if (!r.reached){
+      msg.push('<b>목표에 도달하지 못합니다.</b> 전류 제한에서 낼 수 있는 토크(' + fmt(p.Kt*p.Imax,3) + ' N·m)가 부하 토크(' + fmt(p.TL,3) + ' N·m)와 마찰을 이기지 못합니다. 전류 제한을 올리거나 부하를 줄이십시오.');
+    } else {
+      if (satFrac > 0.6){
+        msg.push('<b>정착 시간의 ' + fmt(satFrac*100,0) + '% 를 전류 제한에 붙어서 보냅니다.</b> 이 구간은 게인과 무관합니다 — 모터가 낼 수 있는 최대 토크로 가속하는 중입니다. 게인을 두 배로 올려도 이 시간은 그대로입니다. 더 빠르게 하려면 전류 제한을 올리거나(' + fmt(p.Imax,1) + ' A → 더 크게), 관성을 줄이거나, Kt 가 큰 모터를 쓰십시오.');
+      } else {
+        msg.push('<b>선형 구간이 지배합니다.</b> 포화 비중이 ' + fmt(satFrac*100,0) + '% 뿐이라 게인 튜닝이 실제로 효과가 있습니다. 대역폭을 올려 보십시오.');
+      }
+      if (r.overshoot > 20) msg.push('오버슈트 ' + fmt(r.overshoot,0) + '% 는 과합니다 — ζ 를 0.7 이상으로 올리거나 Ki 를 낮추십시오.');
+      if (!p.aw && satFrac > 0.2) msg.push('<b>안티와인드업이 꺼져 있습니다.</b> 포화 동안 적분기가 계속 쌓여 오버슈트를 키웁니다. 켜고 비교해 보십시오.');
+      var sep = fi / (wn / (2*Math.PI));
+      if (sep < 5) msg.push('속도루프 대역폭이 전류루프의 1/' + fmt(sep,1) + ' 입니다. <b>보통 1/5 ~ 1/10 로 잡습니다</b> — 너무 가까우면 두 루프가 서로 간섭합니다.');
+    }
+    a.innerHTML = msg.join(" ");
+  }
+
+  $("design").addEventListener("click", function(){
+    var p = read();
+    var wn = 2 * Math.PI * (+$("fbw").value);
+    var z = +$("zeta").value;
+    var Ki = p.J * wn * wn / p.Kt;
+    var Kp = (2 * z * wn * p.J - p.B) / p.Kt;
+    $("KpU").value = "1"; $("KiU").value = "1";
+    $("Kp").value = Kp.toFixed(4);
+    $("Ki").value = Ki.toFixed(2);
+    render();
+  });
+
+  ["tgt","w0","J","JU","Kt","TL","B","Imax","ti","Kp","KpU","Ki","KiU","aw"].forEach(function(id){
+    var el = $(id);
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+
+  window.addEventListener("resize", function(){ render(); });
+  render();
+})();
+</script>
+<nav style="max-width:1180px;margin:0 auto;padding:0 20px 40px">
+  <a href="/" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-decoration:none">&larr; designmargin &mdash; 전체 계산기 목록</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>designmargin — 설계 여유 계산기</title>
+<meta name="description" content="전압·전류·열·타이밍 여유를 계산하는 엔지니어용 웹 계산기 모음. BLDC 최대 회전수, 전압 분배기 E계열 조합, 모터 PI 속도루프 도달시간. 한국어·영어 병기, 설치 없이 브라우저에서.">
+<link rel="canonical" href="https://designmargin.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="designmargin">
+<meta property="og:title" content="designmargin — 설계 여유 계산기">
+<meta property="og:description" content="전압·전류·열·타이밍 여유를 계산하는 엔지니어용 웹 계산기 모음.">
+<meta property="og:url" content="https://designmargin.github.io/">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+html{color-scheme:light dark}
+:root{
+  --ground:#EEF1F3;--surface:#FFFFFF;--surface-2:#F6F8F9;
+  --ink:#151A1E;--muted:#5D6A74;--faint:#8A96A0;
+  --line:#D6DDE2;--line-strong:#B8C3CA;
+  --copper:#9C5227;--copper-soft:#F3E7DF;
+  --signal:#0E6E63;--signal-soft:#DDEEEB;
+  --shadow:0 1px 2px rgba(20,30,38,.06),0 8px 24px -12px rgba(20,30,38,.18);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111619;--surface:#181E22;--surface-2:#1E252A;
+  --ink:#E7EDF0;--muted:#9BA9B3;--faint:#71808A;
+  --line:#2B3439;--line-strong:#3C474E;
+  --copper:#E09763;--copper-soft:#31221A;
+  --signal:#54C6B5;--signal-soft:#152B29;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --ground:#111619;--surface:#181E22;--surface-2:#1E252A;
+  --ink:#E7EDF0;--muted:#9BA9B3;--faint:#71808A;
+  --line:#2B3439;--line-strong:#3C474E;
+  --copper:#E09763;--copper-soft:#31221A;
+  --signal:#54C6B5;--signal-soft:#152B29;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+img{max-width:100%;height:auto}
+[hidden]{display:none!important}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:44px 20px 64px}
+
+.masthead{padding-bottom:22px;border-bottom:2px solid var(--ink);margin-bottom:14px}
+.masthead .en{display:block;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin-bottom:8px}
+.masthead h1{margin:0 0 10px;font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.025em}
+.masthead p{margin:0;max-width:60ch;color:var(--muted);font-size:15px}
+
+.lede{margin:26px 0 34px;max-width:64ch;font-size:15.5px}
+.lede b{font-weight:600}
+.lede .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  background:var(--copper-soft);color:var(--copper);padding:1px 7px;border-radius:2px;
+  margin:0 1px;white-space:nowrap}
+
+h2.sec{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);font-weight:500;margin:0 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+
+.list{list-style:none;margin:0 0 40px;padding:0;display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
+.card a{display:grid;grid-template-columns:1fr auto;gap:6px 18px;align-items:start;
+  padding:16px 18px;text-decoration:none;color:inherit;border-radius:4px}
+.card a:hover{border-color:var(--copper)}
+.card a:hover h3{color:var(--copper)}
+.card a:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.card h3{margin:0 0 2px;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.card .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.card p{margin:0;font-size:13.5px;color:var(--muted);max-width:56ch}
+.card .go{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--signal);
+  white-space:nowrap;align-self:center}
+@media(max-width:560px){.card a{grid-template-columns:1fr}.card .go{align-self:start}}
+
+.soon{list-style:none;margin:0 0 40px;padding:0;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.soon li{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:3px;
+  padding:9px 12px;font-size:13px;color:var(--muted)}
+.soon li span{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+
+.about{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:20px 22px;margin-bottom:26px}
+.about h3{margin:0 0 8px;font-size:14px;font-weight:600}
+.about h3+p{margin-top:0}
+.about p{margin:0 0 16px;font-size:13.5px;color:var(--muted);max-width:64ch}
+.about p:last-child{margin-bottom:0}
+.about code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+  background:var(--surface-2);padding:1px 5px;border-radius:2px;color:var(--ink)}
+
+footer{border-top:1px solid var(--line);padding-top:18px;font-size:12px;color:var(--faint);max-width:70ch}
+footer p{margin:0 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="en">Design Margin · Engineering Calculators</span>
+    <h1>설계 여유를 계산합니다</h1>
+    <p>전압·전류·열·타이밍. 설치 없이 브라우저에서, 한국어와 영어를 같이.</p>
+  </header>
+
+  <p class="lede">
+    설계가 막히는 지점은 대개 같습니다 — <b>어딘가의 여유가 먼저 0 이 됩니다.</b>
+    모터가 목표 회전수를 못 내는 것은 <span class="tag">전압 여유</span>가 먼저 떨어졌기 때문이고,
+    저항이 타는 것은 <span class="tag">정격 여유</span>, 통신이 깨지는 것은 <span class="tag">타이밍 여유</span>,
+    FET 가 죽는 것은 <span class="tag">온도 여유</span>가 없어서입니다.
+    여기 있는 계산기들은 전부 <b>「무엇의 여유가 얼마나 남았는가」</b>를 계산합니다.
+  </p>
+
+  <h2 class="sec">계산기 · Calculators</h2>
+  <ul class="list">
+
+    <li class="card"><a href="/bldc-speed/">
+      <div>
+        <h3>BLDC 최대 회전수</h3>
+        <div class="sub">BLDC / PMSM max speed · voltage ceiling</div>
+        <p>부하를 걸었을 때 모터가 실제로 낼 수 있는 최대 회전수. 역기전압을 <b>Kv · mV/rpm · V/krpm · Vpp · Vrms(상·선간)</b> 여섯 가지로 받습니다. 전압을 역기전압·저항·인덕턴스가 각각 얼마나 가져가는지 페이저로 보여 줍니다.</p>
+      </div>
+      <span class="go">열기 →</span>
+    </a></li>
+
+    <li class="card"><a href="/voltage-divider/">
+      <div>
+        <h3>전압 분배기</h3>
+        <div class="sub">Voltage divider · real E-series pairs</div>
+        <p>비율만 내주지 않습니다. <b>E12 · E24 · E96 계열에 실제로 있는 저항</b>으로 조합을 찾아 오차 순으로 보여 주고, 부하를 달았을 때의 전압 강하와 허용오차 범위, 각 저항의 소비전력과 정격 초과 여부까지 같이 봅니다.</p>
+      </div>
+      <span class="go">열기 →</span>
+    </a></li>
+
+    <li class="card"><a href="/pi-speed-loop/">
+      <div>
+        <h3>모터 PI 속도루프</h3>
+        <div class="sub">PI speed loop · settling time</div>
+        <p>목표 속도까지 몇 초 걸리는지. <b>전류 포화와 안티와인드업</b>을 넣은 시뮬레이션이라, 게인을 올려도 더는 안 빨라지는 지점이 어디인지 그래프로 보입니다. 안티와인드업을 꺼 보면 무슨 일이 생기는지도 볼 수 있습니다.</p>
+      </div>
+      <span class="go">열기 →</span>
+    </a></li>
+
+  </ul>
+
+  <h2 class="sec">준비 중 · Coming next</h2>
+  <ul class="soon">
+    <li>CAN 비트 타이밍<span>Bit timing · sample point</span></li>
+    <li>션트 + 앰프 + ADC<span>Current sense chain</span></li>
+    <li>NTC 서미스터<span>Thermistor · B constant</span></li>
+    <li>열저항 → 정션 온도<span>Thermal chain · Tj</span></li>
+    <li>Kv ↔ Ke ↔ Kt 변환<span>Motor constants</span></li>
+    <li>권선 턴수 변경 영향<span>Turns ratio · n, n², 1/n</span></li>
+  </ul>
+
+  <h2 class="sec">이 사이트에 대해 · About</h2>
+  <div class="about">
+    <h3>단위를 맞추느라 시간 쓰지 않게</h3>
+    <p>같은 값을 업계마다 다르게 부릅니다. 역기전압 하나만 해도 드론·RC 쪽은 <code>Kv (rpm/V)</code> 만 쓰고, 산업용 데이터시트는 <code>mV/rpm</code> 이나 <code>Vpp@1000rpm</code> 으로 적습니다. 저항과 인덕턴스는 상 기준인지 선간 기준인지에 따라 두 배가 차이 납니다. 그래서 입력칸마다 단위를 고를 수 있게 하고, 안에서 하나로 환산합니다. <b>데이터시트에 적힌 그대로 넣으시면 됩니다.</b></p>
+
+    <h3>계산만 내주지 않습니다</h3>
+    <p>페이지마다 <b>쓰는 식</b>, <b>실무에서 자주 당하는 것</b>, <b>이 모델이 다루지 않는 것</b>을 같이 적었습니다. 값이 왜 그렇게 나왔는지 검산할 수 있어야 쓸 수 있는 계산기라고 봅니다.</p>
+
+    <h3>설치도 가입도 없습니다</h3>
+    <p>전부 웹페이지 한 장이고 계산은 브라우저 안에서만 일어납니다. 입력한 값은 어디로도 전송되지 않습니다. 페이지를 저장해 두면 인터넷 없이도 그대로 돌아갑니다.</p>
+  </div>
+
+  <footer>
+    <p><b>면책</b> — 개념 확인과 초기 검토용입니다. 결과를 설계 근거로 그대로 쓰지 마십시오. 실제 값은 시료 측정과 부하 조건에 따라 달라집니다. 사용에 따른 결과에 대해 책임지지 않습니다.</p>
+    <p><b>Disclaimer</b> — For concept checking and early-stage estimation only. Verify against measured samples before committing to a design.</p>
+    <p style="margin-top:14px">designmargin</p>
+  </footer>
+
+</div>
+</body>
+</html>
