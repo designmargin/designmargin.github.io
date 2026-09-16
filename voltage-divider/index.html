@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="E12·E24·E96 계열에 실제로 있는 저항으로 분압 조합을 찾아 줍니다. 부하 영향·허용오차·소비전력까지 같이 봅니다.">
+<meta name="description" content="전압을 낮출 때 쓰는 저항 두 개를 정해 줍니다. E12·E24·E96 에 실제로 있는 값으로 조합을 찾고 부하·오차·발열까지 같이 봅니다.">
 <link rel="canonical" href="https://designmargin.github.io/voltage-divider/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="designmargin">
 <meta property="og:title" content="전압 분배기 계산기">
-<meta property="og:description" content="E12·E24·E96 계열에 실제로 있는 저항으로 분압 조합을 찾아 줍니다. 부하 영향·허용오차·소비전력까지 같이 봅니다.">
+<meta property="og:description" content="전압을 낮출 때 쓰는 저항 두 개를 정해 줍니다. E12·E24·E96 에 실제로 있는 값으로 조합을 찾고 부하·오차·발열까지 같이 봅니다.">
 <meta property="og:url" content="https://designmargin.github.io/voltage-divider/">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary">
@@ -168,8 +168,36 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
       <span class="en">Voltage Divider · Resistor Selection</span>
       <h1>전압 분배기 계산기</h1>
     </div>
-    <p>비율만 내주는 계산기는 많습니다. 이건 <b>E 계열에 실제로 있는 저항</b>으로 조합을 찾아 주고, 부하와 오차와 발열까지 같이 봅니다.</p>
+    <p>전압을 낮출 때 쓰는 저항 두 개를 정해 줍니다.</p>
   </header>
+
+  <section class="panel" style="margin-bottom:20px">
+    <div class="panel-bd" style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center">
+      <div>
+        <p style="margin:0 0 10px"><b>저항 두 개를 위아래로 달면 전압이 나뉩니다.</b>
+        아래쪽 저항 양단에서 낮아진 전압을 꺼내 씁니다.</p>
+        <div class="eq" style="margin:0 0 10px">Vout = Vin × R2 ÷ (R1 + R2)</div>
+        <p style="margin:0;color:var(--muted);font-size:13.5px">아래쪽(R2)이 클수록 출력이 높아집니다.
+        다만 <b>전류를 쓰는 곳에는 못 씁니다</b> — 전압이 무너집니다. 신호를 읽을 때만 씁니다.</p>
+      </div>
+      <svg viewBox="0 0 120 150" width="96" height="120" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M60 8 V30 M60 60 V90 M60 120 V142"/>
+          <rect x="47" y="30" width="26" height="30" rx="2"/>
+          <rect x="47" y="90" width="26" height="30" rx="2"/>
+          <path d="M60 75 H104"/>
+          <path d="M44 142 H76"/>
+          <path d="M50 148 H70 M55 153 H65"/>
+        </g>
+        <g font-size="11" fill="currentColor">
+          <text x="80" y="50">R1</text>
+          <text x="80" y="110">R2</text>
+          <text x="66" y="16">Vin</text>
+          <text x="86" y="71">Vout</text>
+        </g>
+      </svg>
+    </div>
+  </section>
 
   <div class="cols">
 
@@ -181,23 +209,27 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
         <div class="grp">
           <div class="grp-t">Target · 원하는 것</div>
           <div class="row">
-            <div class="lab"><b>입력 전압</b><span>Vin</span></div>
+            <div class="lab"><b>입력 전압</b><span>회로에 들어오는 전압 · Vin</span></div>
             <div class="ctl"><input type="number" id="vin" value="12" step="0.1"><span class="unit">V</span></div>
           </div>
           <div class="row">
-            <div class="lab"><b>목표 출력 전압</b><span>Vout target</span></div>
+            <div class="lab"><b>목표 출력 전압</b><span>만들고 싶은 전압 · Vout target</span></div>
             <div class="ctl"><input type="number" id="vout" value="3.3" step="0.01"><span class="unit">V</span></div>
           </div>
           <div class="row">
-            <div class="lab"><b>저항 계열</b><span>E-series</span></div>
+            <div class="lab"><b>저항 계열</b><span>실제로 파는 저항값 묶음 · E-series</span></div>
             <div class="ctl"><select id="ser">
               <option value="12">E12 — ±10%</option>
               <option value="24" selected>E24 — ±5%</option>
               <option value="96">E96 — ±1%</option>
             </select></div>
           </div>
+        </div>
+
+        <details class="grp">
+          <summary class="grp-t" style="cursor:pointer;list-style:revert">더 자세히 — 흐르는 전류 · 받아 가는 쪽 · 오차 · 정격</summary>
           <div class="row">
-            <div class="lab"><b>브리더 전류 목표</b><span>Divider current — sets total R</span></div>
+            <div class="lab"><b>흘릴 전류</b><span>저항 크기를 정한다 · 보통 1 mA</span></div>
             <div class="ctl">
               <input type="number" id="ibl" value="1" step="0.1" min="0.001">
               <select class="u" id="iblU">
@@ -206,12 +238,9 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
               </select>
             </div>
           </div>
-        </div>
 
-        <div class="grp">
-          <div class="grp-t">Reality · 실제 조건</div>
           <div class="row">
-            <div class="lab"><b>부하 저항</b><span>Load on the tap — ADC, comparator…</span></div>
+            <div class="lab"><b>부하 저항</b><span>이 전압을 받아 갈 것 (ADC 등) · Load</span></div>
             <div class="ctl">
               <input type="number" id="rl" value="0" step="1" min="0">
               <select class="u" id="rlU">
@@ -222,7 +251,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
           </div>
           <label class="chk"><input type="checkbox" id="noload" checked> 부하 없음 (하이임피던스)</label>
           <div class="row">
-            <div class="lab"><b>저항 허용오차</b><span>Resistor tolerance</span></div>
+            <div class="lab"><b>저항 허용오차</b><span>저항이 표시값에서 벗어나는 범위 · Tolerance</span></div>
             <div class="ctl"><select id="tol">
               <option value="0.001">±0.1%</option>
               <option value="0.01" selected>±1%</option>
@@ -230,7 +259,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
             </select></div>
           </div>
           <div class="row">
-            <div class="lab"><b>저항 정격</b><span>Power rating per resistor</span></div>
+            <div class="lab"><b>저항 정격</b><span>저항이 견디는 열 · Power rating</span></div>
             <div class="ctl"><select id="pw">
               <option value="0.0625">1/16 W</option>
               <option value="0.125">1/8 W</option>
@@ -239,19 +268,19 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
               <option value="1">1 W</option>
             </select></div>
           </div>
-        </div>
+        </details>
 
-        <div class="grp">
-          <div class="grp-t">Check · 직접 넣어 보기</div>
+        <details class="grp">
+          <summary class="grp-t" style="cursor:pointer;list-style:revert">저항값을 직접 넣어 보기</summary>
           <div class="row">
-            <div class="lab"><b>R1 (위쪽)</b><span>High side</span></div>
+            <div class="lab"><b>R1 (위쪽)</b><span>위쪽 저항 · High side</span></div>
             <div class="ctl"><input type="number" id="r1" value="8200" step="1" min="0.01"><span class="unit">Ω</span></div>
           </div>
           <div class="row">
-            <div class="lab"><b>R2 (아래쪽)</b><span>Low side · Vout is across this</span></div>
+            <div class="lab"><b>R2 (아래쪽)</b><span>아래쪽 — 여기 양단이 출력이다 · Low side</span></div>
             <div class="ctl"><input type="number" id="r2" value="3000" step="1" min="0.01"><span class="unit">Ω</span></div>
           </div>
-        </div>
+        </details>
 
       </div>
     </section>
@@ -285,6 +314,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
       <h2>E 계열 조합 — 오차가 작은 순</h2>
       <span class="en" id="serLab">E24 · sorted by error</span>
     </div>
+    <p style="margin:0;padding:10px 16px 0;color:var(--muted);font-size:13.5px">오차가 작은 순입니다. 맨 위가 가장 가깝습니다.</p>
     <div class="tblwrap">
       <table class="tbl">
         <thead><tr>
@@ -298,21 +328,20 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
 
   <p class="note" id="advice"></p>
 
+  <!-- 광고 자리 : 티스토리에 붙일 때 이 아래에 광고 단위를 둔다 -->
+  <div id="ad-slot" style="margin:24px 0;min-height:1px"></div>
+
   <footer>
-    <h3>쓰는 식 · Equations</h3>
-    <div class="eq">Vout = Vin · R2 ÷ (R1 + R2) &nbsp;&nbsp;|&nbsp;&nbsp; I = Vin ÷ (R1 + R2) &nbsp;&nbsp;|&nbsp;&nbsp; P = I² · R</div>
-    <div class="eq">부하가 붙으면 &nbsp; R2′ = R2 ∥ RL &nbsp;→&nbsp; Vout′ = Vin · R2′ ÷ (R1 + R2′)</div>
+    <details>
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;list-style:revert">자주 틀리는 것 세 가지</summary>
+      <ul style="margin-top:12px">
+        <li><b>전원으로 쓴다.</b> 분배기는 <b>신호를 읽을 때만</b> 씁니다. 전류를 조금만 써도 전압이 무너집니다. 전원이 필요하면 레귤레이터를 씁니다</li>
+        <li><b>받아 가는 쪽을 안 본다.</b> 계산은 맞는데 실제로는 낮게 나옵니다. 받아 가는 쪽 저항이 R2 의 <b>100 배 이상</b>이어야 오차 1% 안에 듭니다</li>
+        <li><b>저항 오차를 안 넣는다.</b> ±5% 저항 두 개면 출력이 ±5% 가까이 흔들립니다. 기준 전압으로 쓸 거면 ±1% 이상을 씁니다</li>
+      </ul>
+    </details>
 
-    <h3>실무에서 자주 당하는 것 · Common mistakes</h3>
-    <ul>
-      <li><b>부하를 안 본다.</b> 계산은 맞는데 실제로는 낮게 나옵니다. R2 와 부하가 병렬이 되기 때문입니다. 부하 저항이 R2 의 <b>100 배 이상</b>이어야 오차 1% 안에 듭니다</li>
-      <li><b>브리더 전류를 너무 작게 잡는다.</b> 저항을 MΩ 급으로 키우면 소비는 줄지만 노이즈에 약해지고 ADC 입력 임피던스에 걸립니다. ADC 앞이라면 보통 <b>10 kΩ 이하</b>로 잡고 커패시터를 답니다</li>
-      <li><b>오차를 계산에 안 넣는다.</b> ±5% 저항 두 개면 Vout 이 ±5% 가까이 흔들립니다. 기준 전압으로 쓸 거면 ±1% 이상을 씁니다</li>
-      <li><b>전압 분배기로 전원을 만든다.</b> 분배기는 <b>신호용</b>입니다. 부하 전류가 조금만 흘러도 전압이 무너집니다. 전원이 필요하면 레귤레이터를 씁니다</li>
-      <li><b>정격을 아슬아슬하게 쓴다.</b> 실제로는 정격의 <b>50% 이하</b>로 씁니다. 주변 온도가 올라가면 정격이 내려갑니다 (디레이팅)</li>
-    </ul>
-
-    <p class="disc"><b>면책</b> — 개념 확인과 초기 검토용입니다. 실제 회로는 부품 온도계수·기생 성분·기판 누설의 영향을 받습니다. 설계 근거로 그대로 쓰지 마십시오. · <b>Disclaimer</b> — For concept checking and early-stage estimation only.</p>
+    <p class="disc"><b>면책</b> — 개념 확인과 초기 검토용입니다. 설계 근거로 그대로 쓰지 마십시오.</p>
   </footer>
 </div>
 
@@ -541,6 +570,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
   render();
 })();
 </script>
+
 <nav style="max-width:1180px;margin:0 auto;padding:0 20px 40px">
   <a href="/" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-decoration:none">&larr; designmargin &mdash; 전체 계산기 목록</a>
 </nav>
