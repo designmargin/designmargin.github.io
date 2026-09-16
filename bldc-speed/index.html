@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="BLDC·PMSM 모터가 전압 천장에 닿는 회전수를 계산합니다. 역기전압을 Kv·mV/rpm·Vpp·Vrms 등 6가지 표기로 받습니다.">
+<meta name="description" content="BLDC·PMSM 모터가 이 전압에서 몇 rpm 까지 도는지 계산합니다. 역기전압을 Vrms·Vpp·mV/rpm·Kv 등 여러 표기로 받고, 상·선간을 골라 넣습니다.">
 <link rel="canonical" href="https://designmargin.github.io/bldc-speed/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="designmargin">
 <meta property="og:title" content="BLDC 최대 회전수 계산기">
-<meta property="og:description" content="BLDC·PMSM 모터가 전압 천장에 닿는 회전수를 계산합니다. 역기전압을 Kv·mV/rpm·Vpp·Vrms 등 6가지 표기로 받습니다.">
+<meta property="og:description" content="BLDC·PMSM 모터가 이 전압에서 몇 rpm 까지 도는지 계산합니다. 역기전압을 Vrms·Vpp·mV/rpm·Kv 등 여러 표기로 받고, 상·선간을 골라 넣습니다.">
 <meta property="og:url" content="https://designmargin.github.io/bldc-speed/">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary">
@@ -121,6 +121,26 @@ body{
 .lab span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;
   text-transform:uppercase;color:var(--faint);margin-top:1px}
 .ctl{display:flex;gap:5px;align-items:center;justify-self:end}
+.dlbar{display:flex;justify-content:flex-end;gap:8px;margin:14px 0 0}
+.btn{appearance:none;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+  font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:3px;cursor:pointer}
+.btn:hover{background:var(--copper);border-color:var(--copper);color:#fff}
+.lab b .tip,.grp-t .tip,.tip{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;
+  margin-left:5px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface-2);
+  color:var(--muted);font-size:9.5px;font-weight:700;cursor:help;position:relative;vertical-align:1px;font-family:inherit;letter-spacing:0;text-transform:none;line-height:1}
+.tip:hover,.tip:focus{background:var(--copper);border-color:var(--copper);color:#fff;outline:none}
+.tip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);
+  width:max-content;max-width:290px;padding:8px 10px;border-radius:4px;
+  background:var(--ink);color:var(--ground);font-size:11.5px;font-weight:400;line-height:1.55;
+  text-align:left;white-space:pre-line;box-shadow:0 6px 20px -6px rgba(0,0,0,.5);
+  opacity:0;visibility:hidden;transition:opacity .12s;z-index:40;pointer-events:none}
+.tip:hover::after,.tip:focus::after{opacity:1;visibility:visible}
+@media(max-width:700px){.tip::after{left:0;transform:none;max-width:220px}}
+.echo{grid-column:1/-1;margin:-2px 0 4px;padding:5px 8px;border-radius:3px;
+  background:var(--surface-2);border:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);line-height:1.5}
+.echo b{color:var(--ink);font-weight:600}
+.echo .warn{color:var(--crit);font-weight:600}
 
 input[type=number],select{
   font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-variant-numeric:tabular-nums;
@@ -199,6 +219,21 @@ input[type=range]{width:100%;margin:0;accent-color:var(--copper);height:20px}
   border-radius:0 4px 4px 0;font-size:13px;color:var(--muted);max-width:78ch}
 .note b{color:var(--ink);font-weight:600}
 
+.why{margin-top:28px}
+.why h2{margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em}
+.why .sub{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+.why .fig{background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);padding:16px;margin-bottom:18px}
+.why .fig figcaption{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.55}
+.why .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.why .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px 16px;box-shadow:var(--shadow)}
+.why .card h3{margin:0 0 4px;font-size:14.5px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+  font-family:inherit;text-transform:none}
+.why .card .en{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--copper);margin-bottom:8px}
+.why .card ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);line-height:1.6}
+.why .card li{margin-bottom:5px}
+.why .card li b{color:var(--ink);font-weight:600}
 footer{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
 footer h3{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
   color:var(--faint);margin:0 0 8px;font-weight:500}
@@ -218,8 +253,43 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
       <span class="en">BLDC · PMSM Max Speed Calculator</span>
       <h1>BLDC 최대 회전수 계산기</h1>
     </div>
-    <p>모터가 목표 회전수에 못 미치는 이유는 대개 하나입니다 — <b>필요 전압이 제어기가 낼 수 있는 전압에 먼저 닿습니다.</b> 그 지점을 계산합니다.</p>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.5">
+      <b>이 모터가 이 전압에서 몇 rpm 까지 도는지</b> 계산합니다.<br>
+      <span style="color:var(--muted);font-size:13.5px">모터가 목표에 못 미치는 이유는 대개 하나입니다 —
+      필요한 상전압이 인버터가 낼 수 있는 한계에 먼저 닿습니다.</span></p>
+    <p style="margin:0;font-size:12px;color:var(--copper)"><b>보이는 값은 예시입니다</b> — 42 V BLDC · 10극 · 56턴 · 0.58 N&middot;m 부하. 자기 값으로 바꿔 쓰십시오.</p>
   </header>
+
+  <section class="panel" style="margin-bottom:20px">
+    <div class="panel-hd"><h2>쓰는 식</h2><span class="en">Equations</span></div>
+    <div class="panel-bd">
+      <div class="eq">E = Ke · N &nbsp;&nbsp;|&nbsp;&nbsp; T = Kt · I &nbsp;&nbsp;|&nbsp;&nbsp; Kt = 1.5 · p · λ &nbsp;&nbsp;|&nbsp;&nbsp; λ = Ke ÷ ωe</div>
+      <div class="eq">V필요 = √( (R·I + E)² + (ωe·L·I)² ) &nbsp;&nbsp;≤&nbsp;&nbsp; V가용 = Vdc · k</div>
+      <p style="margin:8px 0 0;font-size:12px;color:var(--faint)">두 식이 같아지는 N 이 최대 회전수입니다. 모든 전압·전류는 <b>상 기준 첨두값</b>, Kt 는 <b>A 첨두당 N·m</b> 입니다.</p>
+
+      <details style="margin-top:12px">
+        <summary style="cursor:pointer;font-weight:600;font-size:13px;list-style:revert">기호가 무슨 뜻인가 — 한 줄씩</summary>
+        <dl class="kv" style="margin-top:10px">
+          <dt>N<span>회전수 · rpm</span></dt><dd>축이 1분에 도는 횟수</dd>
+          <dt>E<span>역기전압 · V</span></dt><dd>모터가 돌면서 스스로 만드는 전압. 회전수에 정비례한다</dd>
+          <dt>Ke<span>역기전압 상수 · V/rpm</span></dt><dd>1 rpm 당 만드는 역기전압. 권선 턴수와 자석 자속이 정한다</dd>
+          <dt>Kt<span>토크 상수 · N·m/A</span></dt><dd>전류 1 A 당 내는 토크. Ke 와 같은 뿌리라 Ke 가 낮으면 Kt 도 같은 비율로 낮다</dd>
+          <dt>λ<span>쇄교자속 · Wb</span></dt><dd>자석이 권선에 걸어 주는 자속. Ke 와 Kt 를 만드는 근원</dd>
+          <dt>p<span>극쌍수</span></dt><dd>자석 극수 ÷ 2. 10극이면 5</dd>
+          <dt>ωe<span>전기 각속도 · rad/s</span></dt><dd>2π × N/60 × p. 회전이 빠를수록, 극이 많을수록 크다</dd>
+          <dt>I<span>상전류 첨두 · A</span></dt><dd>한 상에 흐르는 전류의 꼭짓값. 토크 ÷ Kt 로 정해진다</dd>
+          <dt>R<span>상저항 · Ω</span></dt><dd>한 상의 권선 저항. 전류가 흐르면 열이 난다</dd>
+          <dt>L<span>상인덕턴스 · H</span></dt><dd>전류가 바뀌는 것을 방해하는 성질. 빨리 돌수록 전압을 더 가져간다</dd>
+          <dt>Vdc<span>공급 전압 · V</span></dt><dd>제어기에 들어가는 DC 전압. 배터리 전압</dd>
+          <dt>k<span>전압 이용률</span></dt><dd>Vdc 중 상에 걸 수 있는 몫. SVPWM 0.577 · 정현파 0.5</dd>
+          <dt>V필요<span>필요 상전압 · V</span></dt><dd>그 회전수로 돌리는 데 있어야 하는 상전압. 셋의 벡터 합</dd>
+          <dt>V가용<span>상전압 최대치 · V</span></dt><dd>인버터가 낼 수 있는 상전압의 한계. Vdc × k</dd>
+        </dl>
+        <p style="margin:10px 0 0;font-size:12px;color:var(--faint)">
+          엑셀 「용어」 시트와 같은 말을 씁니다. 모든 전압·전류는 <b>상 기준 첨두값</b>입니다.</p>
+      </details>
+    </div>
+  </section>
 
   <div class="cols">
 
@@ -231,25 +301,35 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
         <div class="grp">
           <div class="grp-t">Drive · 구동 조건</div>
           <div class="row">
-            <div class="lab"><b>공급 전압</b><span>DC bus voltage</span></div>
-            <div class="ctl"><input type="number" id="vdc" value="48" step="1" min="1"><span class="num" style="font-size:12px;color:var(--muted)">V</span></div>
+            <div class="lab"><b>공급 전압 <span class="tip" tabindex="0" data-tip="제어기에 들어가는 DC 전압입니다.
+배터리라면 가장 낮아졌을 때 값으로도 한 번 보십시오 — 전압이 내려가면 최고 속도도 같이 내려갑니다.">?</span></b><span>DC bus voltage</span></div>
+            <div class="ctl"><input type="number" id="vdc" value="42" step="1" min="1"><span class="num" style="font-size:12px;color:var(--muted)">V</span></div>
           </div>
           <div class="row">
-            <div class="lab"><b>변조 방식</b><span>Modulation · voltage utilization k</span></div>
+            <div class="lab"><b>변조 방식 <span class="tip" tabindex="0" data-tip="인버터가 DC 전압 중 얼마를 상에 걸 수 있는지 정합니다.
+모르면 맨 위 SVPWM 그대로 두십시오.
+SVPWM 0.577 이 3상 인버터의 이론 상한이고, 실제는 데드타임 때문에 조금 낮습니다.
+보수적으로 보시려면 아래 k 칸을 조금 낮추십시오.">?</span></b><span>Modulation · voltage utilization k</span></div>
             <div class="ctl"><select id="mod">
-              <option value="0.5774" selected>SVPWM — 0.577</option>
-              <option value="0.5">정현파 Sine — 0.500</option>
-              <option value="custom">직접 입력 Custom</option>
+              <option value="0.577" selected>SVPWM — 0.577</option>
+              <option value="0.5">Sine PWM — 0.500</option>
+              <option value="custom">직접 입력</option>
             </select></div>
+            <div class="echo" id="echoMod">&mdash;</div>
           </div>
-          <div class="row" id="krow" hidden>
-            <div class="lab"><b>전압 이용률 k</b><span>V phase peak ÷ V dc</span></div>
+          <div class="row" id="krow">
+            <div class="lab"><b>전압 이용률 k <span class="tip" tabindex="0" data-tip="상전압 첨두 ÷ DC 전압.
+SVPWM 0.577 · 정현파 PWM 0.5 가 이론 상한입니다.
+실제 제어기는 데드타임 때문에 이보다 조금 낮습니다.">?</span></b><span>V phase peak ÷ V dc</span></div>
             <div class="ctl"><input type="number" id="kman" value="0.577" step="0.001" min="0.05" max="1"></div>
           </div>
           <div class="row">
-            <div class="lab"><b>부하 토크</b><span>Shaft torque</span></div>
+            <div class="lab"><b>부하 토크 <span class="tip" tabindex="0" data-tip="그 속도에서 축에 걸리는 토크입니다.
+출력(W)만 아신다면
+  토크 = 출력 ÷ (2π × rpm ÷ 60)
+예) 200 W · 3000 rpm → 0.64 N·m">?</span></b><span>Shaft torque</span></div>
             <div class="ctl">
-              <input type="number" id="trq" value="0.30" step="0.01" min="0">
+              <input type="number" id="trq" value="0.58" step="0.01" min="0">
               <select class="u" id="trqU">
                 <option value="1" selected>N·m</option>
                 <option value="0.001">mN·m</option>
@@ -259,35 +339,51 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
             </div>
           </div>
           <div class="row">
-            <div class="lab"><b>목표 회전수</b><span>Target speed</span></div>
-            <div class="ctl"><input type="number" id="tgt" value="7000" step="100" min="0"><span class="num" style="font-size:12px;color:var(--muted)">rpm</span></div>
+            <div class="lab"><b>목표 회전수 <span class="tip" tabindex="0" data-tip="이만큼은 나와야 한다는 값입니다.
+계산에는 안 쓰이고 달성 여부만 판정합니다.">?</span></b><span>Target speed</span></div>
+            <div class="ctl"><input type="number" id="tgt" value="3700" step="100" min="0"><span class="num" style="font-size:12px;color:var(--muted)">rpm</span></div>
           </div>
         </div>
 
         <div class="grp">
           <div class="grp-t">Motor · 모터 파라미터</div>
           <div class="row">
-            <div class="lab"><b>역기전압 상수</b><span>Back-EMF constant</span></div>
+            <div class="lab"><b>역기전압 상수 <span class="tip" tabindex="0" data-tip="모터를 밖에서 돌리면 단자에 나오는 전압입니다. 측정 보고서의 BEMF.
+★ 상인지 선간인지 꼭 맞추십시오.
+보고서에 U-V 처럼 두 단자가 적혀 있으면 선간입니다.
+잘못 고르면 결과가 1.7~2.8배 틀립니다.">?</span></b><span>Back-EMF constant</span></div>
             <div class="ctl">
-              <input type="number" id="bemf" value="4.0" step="0.01" min="0.0001">
+              <input type="number" id="bemf" value="4.1" step="0.001" min="0.0001">
               <select class="u" id="bemfU">
-                <option value="ke_mv" selected>mV/rpm · 상 첨두</option>
-                <option value="kv">Kv rpm/V · 상 첨두</option>
-                <option value="ke_vk">V/krpm · 상 첨두</option>
-                <option value="vpp">Vpp@1krpm · 상</option>
-                <option value="vrms">Vrms@1krpm · 상</option>
-                <option value="vrms_ll">Vrms@1krpm · 선간</option>
+                <optgroup label="측정 보고서 값 그대로">
+                  <option value="vrms" selected>Vrms @ 1000rpm · 상</option>
+                  <option value="vrms_ll">Vrms @ 1000rpm · 선간</option>
+                  <option value="vpp">Vpp @ 1000rpm · 상</option>
+                  <option value="vpp_ll">Vpp @ 1000rpm · 선간</option>
+                  <option value="mvrms">mVrms @ 1000rpm · 상</option>
+                  <option value="mvrms_ll">mVrms @ 1000rpm · 선간</option>
+                </optgroup>
+                <optgroup label="상수로 넣기">
+                  <option value="ke_mv">mV/rpm · 상 첨두</option>
+                  <option value="ke_vk">V / 1000rpm · 상 첨두</option>
+                  <option value="kv">Kv rpm/V · 상 첨두</option>
+                </optgroup>
               </select>
             </div>
+            <div class="echo" id="echoKe">—</div>
           </div>
           <div class="row">
-            <div class="lab"><b>극수</b><span>Pole count (not pole pairs)</span></div>
-            <div class="ctl"><input type="number" id="poles" value="8" step="2" min="2"><span class="num" style="font-size:12px;color:var(--muted)">P</span></div>
+            <div class="lab"><b>극수 <span class="tip" tabindex="0" data-tip="자석 극의 개수입니다. 극쌍수가 아닙니다.
+10극 12슬롯이면 10 을 넣으십시오.
+헷갈리면 1000 rpm 에서 BEMF 주파수 ÷ 8.33 이 극쌍수입니다.">?</span></b><span>Pole count (not pole pairs)</span></div>
+            <div class="ctl"><input type="number" id="poles" value="10" step="2" min="2"><span class="num" style="font-size:12px;color:var(--muted)">P</span></div>
           </div>
           <div class="row">
-            <div class="lab"><b>저항</b><span>Winding resistance</span></div>
+            <div class="lab"><b>상저항 <span class="tip" tabindex="0" data-tip="한 상의 저항입니다.
+★ 측정 보고서가 「선간 저항」이면 Y결선은 ÷ 2 가 상저항입니다.
+단위 칸에서 「선간」을 고르면 자동으로 나눠 줍니다.">?</span></b><span>Phase resistance</span></div>
             <div class="ctl">
-              <input type="number" id="res" value="120" step="1" min="0">
+              <input type="number" id="res" value="225" step="1" min="0">
               <select class="u" id="resU">
                 <option value="0.001|1" selected>mΩ · 상</option>
                 <option value="0.001|0.5">mΩ · 선간</option>
@@ -297,9 +393,10 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
             </div>
           </div>
           <div class="row">
-            <div class="lab"><b>인덕턴스</b><span>Winding inductance</span></div>
+            <div class="lab"><b>상인덕턴스 <span class="tip" tabindex="0" data-tip="한 상의 인덕턴스입니다. 저항과 같은 규칙입니다.
+U-V · V-W 처럼 단자 사이로 쟀으면 선간입니다.">?</span></b><span>Phase inductance</span></div>
             <div class="ctl">
-              <input type="number" id="ind" value="350" step="10" min="0">
+              <input type="number" id="ind" value="680" step="10" min="0">
               <select class="u" id="indU">
                 <option value="0.000001|1" selected>µH · 상</option>
                 <option value="0.000001|0.5">µH · 선간</option>
@@ -307,16 +404,44 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
                 <option value="0.001|0.5">mH · 선간</option>
               </select>
             </div>
+            <div class="echo" id="echoRL">—</div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>권선 턴수 <span class="tip" tabindex="0" data-tip="한 상의 턴수입니다.
+왼쪽은 위 값들을 잰 권선, 오른쪽은 바꿔 볼 권선입니다.
+오른쪽을 바꾸면 결과가 그 권선 기준으로 다시 계산됩니다.">?</span></b><span>측정한 권선 &rarr; 바꿀 권선 · 오른쪽 값으로 계산합니다</span></div>
+            <div class="ctl">
+              <input type="number" id="turnsBase" value="56" step="1" min="1" style="width:60px">
+              <span class="num" style="font-size:12px;color:var(--muted)">T &rarr;</span>
+              <input type="number" id="turnsNew" value="56" step="1" min="1" style="width:60px">
+              <span class="num" style="font-size:12px;color:var(--muted)">T</span>
+            </div>
+            <div class="echo" id="echoTurns">&mdash;</div>
           </div>
         </div>
 
         <div class="grp">
-          <div class="grp-t">What-if · 권선 턴수 변경</div>
+          <div class="grp-t">효율 · Efficiency &nbsp;<span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint)">그냥 두셔도 됩니다</span></div>
           <div class="row">
-            <div class="lab"><b>턴수 비</b><span>Turns ratio n — Ke×n, R·L×n², I×1/n</span></div>
-            <div class="ctl"><input type="number" id="turns" value="100" step="1" min="10" max="200"><span class="num" style="font-size:12px;color:var(--muted)">%</span></div>
+            <div class="lab"><b>권선 온도 <span class="tip" tabindex="0" data-tip="실제로 돌 때 권선이 올라가는 온도입니다.&#10;저항은 뜨거워지면 커지고, 동손도 같이 커집니다.&#10;저항을 상온(20℃)에서 쟀다면 그대로 두지 말고 100 정도로 보십시오.">?</span></b><span>실제로 도는 온도 · 보통 80~120</span></div>
+            <div class="ctl"><input type="number" id="wTemp" value="100" step="5" min="20" max="180"><span class="num" style="font-size:12px;color:var(--muted)">&deg;C</span></div>
           </div>
+          <div class="row">
+            <div class="lab"><b>동손 비중 <span class="tip" tabindex="0" data-tip="전체 손실 중 권선 발열(동손)이 차지하는 몫입니다.&#10;나머지는 철손 · 기계손 · 제어기 손실인데 식으로는 안 나옵니다.&#10;12 V 급 45 · 48 V 급 55 정도가 실측에서 나온 경험값입니다.&#10;아래 실측 효율을 넣으면 이 값은 자동으로 다시 잡힙니다.">?</span></b><span>12V급 45 · 48V급 55 · 모르면 그대로</span></div>
+            <div class="ctl"><input type="number" id="cuShare" value="45" step="1" min="5" max="100"><span class="num" style="font-size:12px;color:var(--muted)">%</span></div>
+          </div>
+          <div class="row">
+            <div class="lab"><b>실측 효율 <span class="tip" tabindex="0" data-tip="완조립(모터+제어기)으로 잰 효율이 있으면 넣으십시오.&#10;축 출력 ÷ DC 입력전력.&#10;넣으면 그 운전점에서 동손 비중을 거꾸로 구해 더 정확해집니다.&#10;없으면 비워 두십시오 — 위 기본값으로 계산합니다.">?</span></b><span>있으면 넣으십시오 · 없으면 비워 둡니다</span></div>
+            <div class="ctl">
+              <input type="number" id="effMeas" value="" step="0.1" min="1" max="99" placeholder="—" style="width:62px">
+              <span class="num" style="font-size:12px;color:var(--muted)">% @</span>
+              <input type="number" id="effRpm" value="" step="10" min="1" placeholder="—" style="width:66px">
+              <span class="num" style="font-size:12px;color:var(--muted)">rpm</span>
+            </div>
+          </div>
+          <div class="echo" id="echoLoss">&mdash;</div>
         </div>
+
 
       </div>
     </section>
@@ -339,7 +464,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
           <span class="v" id="nowLab">—</span>
         </div>
         <input type="range" id="sweep" min="0" max="100" value="100" step="0.5" aria-label="회전수 sweep">
-        <small>슬라이더를 올리면 필요 전압이 커집니다. 천장에 닿는 순간이 최대 회전수입니다.</small>
+        <small>슬라이더를 올리면 필요 상전압이 커집니다. <b>상전압 최대치</b>(V가용 = Vdc · k)에 닿는 순간이 최대 회전수입니다.</small>
       </div>
 
       <div class="viz">
@@ -365,32 +490,113 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
   <!-- ============ LOWER ============ -->
   <div class="strip">
     <section class="panel">
-      <div class="panel-hd"><h2>환산된 상수</h2><span class="en">Derived constants · converter</span></div>
+      <div class="panel-hd"><h2>모터 상수</h2><span class="en" id="constsLab">Motor constants</span></div>
       <div class="panel-bd">
         <dl class="kv" id="consts"></dl>
       </div>
     </section>
 
     <section class="panel">
-      <div class="panel-hd"><h2>턴수를 바꾸면</h2><span class="en">Turns trade-off</span></div>
+      <div class="panel-hd"><h2>운전 결과</h2><span class="en" id="perfLab">Performance</span></div>
       <div class="panel-bd">
-        <dl class="kv" id="turnsOut"></dl>
+        <dl class="kv" id="perf"></dl>
       </div>
     </section>
   </div>
 
   <p class="note" id="advice"></p>
 
+  <div class="dlbar">
+    <button type="button" class="btn" id="dlCsv">결과 내려받기 (엑셀)</button>
+  </div>
+
+  <section class="why">
+    <h2>왜 회전수에 한계가 생기는가</h2>
+    <p class="sub">모터가 안 돌아서가 아닙니다. <b>인버터가 낼 수 있는 전압이 먼저 바닥납니다.</b></p>
+
+    <figure class="fig" id="figWave" style="margin:0 0 18px">&mdash;</figure>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>BLDC 가 도는 원리</h3>
+        <span class="en">How it turns</span>
+        <ul>
+          <li>회전자에 <b>영구자석</b>이 붙어 있습니다</li>
+          <li>고정자 3상 권선에 <b>120도씩 어긋난 전류</b>를 흘립니다</li>
+          <li>자석이 끌려가면서 돕니다. 브러시 대신 <b>인버터가 전자적으로 전환</b>합니다</li>
+          <li>지금 각도를 알아야 하므로 <b>홀센서</b>나 센서리스 추정을 씁니다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>역기전압 — 빨라질수록 커진다</h3>
+        <span class="en">Back-EMF · E = Ke x N</span>
+        <ul>
+          <li>자석이 코일 앞을 지나가면 <b>코일에 전압이 생깁니다</b></li>
+          <li>이 전압은 <b>인버터가 미는 방향과 반대</b>입니다. 그래서 역기전압입니다</li>
+          <li>회전수에 <b>정비례</b>합니다. 두 배로 돌면 두 배가 됩니다</li>
+          <li>비례상수가 <b>Ke</b> 입니다. 권선 턴수를 줄이면 Ke 가 작아집니다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>인버터가 낼 수 있는 상전압</h3>
+        <span class="en">V가용 = Vdc x k</span>
+        <ul>
+          <li>배터리 전압(Vdc)을 <b>그대로 상에 걸지 못합니다</b></li>
+          <li>3상 인버터가 만들 수 있는 상전압 첨두는 Vdc 의 일부입니다</li>
+          <li><b>SVPWM 이면 0.577배</b>, 정현파 PWM 이면 0.5배가 상한입니다</li>
+          <li>이 비율이 <b>전압 이용률 k</b> 입니다. 배터리가 내려가면 이 값도 같이 내려갑니다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>필요 상전압은 셋의 합</h3>
+        <span class="en">Vector sum</span>
+        <ul>
+          <li><b>역기전압 E</b> — 회전수에 비례</li>
+          <li><b>저항 전압강하 R x I</b> — 부하 토크가 크면 커집니다</li>
+          <li><b>인덕턴스 전압 we x L x I</b> — 회전수가 올라가면 커집니다</li>
+          <li>세 성분의 위상이 달라서 <b>그냥 더하지 않고 벡터로</b> 합칩니다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>더 올리려면</h3>
+        <span class="en">How to raise it</span>
+        <ul>
+          <li><b>Vdc 를 올린다</b> — 가장 직접적입니다. 소자 내압이 걸립니다</li>
+          <li><b>권선 턴수를 줄인다</b> — Ke 가 내려가 더 돌지만 <b>같은 토크에 전류가 늘어납니다</b></li>
+          <li><b>변조를 SVPWM 으로</b> — 정현파 대비 약 15% 더 씁니다</li>
+          <li><b>약계자 제어</b> — 자속을 깎아 더 올립니다. 이 계산기는 쓰지 않은 조건입니다</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>현장에서 자주 겪는 것</h3>
+        <span class="en">In practice</span>
+        <ul>
+          <li>무부하로 재면 잘 도는데 <b>부하를 달면 못 미칩니다</b> — R x I 가 커져서입니다</li>
+          <li>배터리가 닳으면 <b>최고 속도가 같이 떨어집니다</b>. 최저 전압에서 검토하십시오</li>
+          <li>Ke 단위를 잘못 읽으면 결과가 통째로 어긋납니다 — <b>상 기준인지 선간인지</b> 확인하십시오</li>
+          <li><b>극수와 극쌍수</b>를 혼동하면 전기주파수가 두 배로 틀립니다</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 광고 자리 : 티스토리에 붙일 때 이 아래에 광고 단위를 둔다 -->
+  <div id="ad-slot" style="margin:24px 0;min-height:1px"></div>
+
   <footer>
-    <h3>쓰는 식 · Equations</h3>
-    <div class="eq">E = Ke · N &nbsp;&nbsp;|&nbsp;&nbsp; T = Kt · I &nbsp;&nbsp;|&nbsp;&nbsp; Kt = 1.5 · p · λ &nbsp;&nbsp;|&nbsp;&nbsp; λ = Ke ÷ ωe</div>
-    <div class="eq">V필요 = √( (R·I + E)² + (ωe·L·I)² ) &nbsp;&nbsp;≤&nbsp;&nbsp; V가용 = Vdc · k</div>
-    <p style="margin:8px 0 20px;font-size:12px;color:var(--faint)">두 식이 같아지는 N 이 최대 회전수입니다. 모든 전압·전류는 <b>상 기준 첨두값</b>, Kt 는 <b>A 첨두당 N·m</b> 입니다.</p>
 
     <h3>이 모델이 다루지 않는 것 · Model limits</h3>
     <ul>
       <li>정상상태만 봅니다. 가감속 · 과도응답은 포함하지 않습니다</li>
       <li>철손 · 기계손 · 인버터 손실은 회전수 계산에 넣지 않습니다 (동손만 별도 표시)</li>
+      <li><b>「동손만 본 효율」은 실제 효율이 아니라 상한입니다.</b> 철손·기계손·인버터 손실이 빠져 있어 실제 효율은 이보다 낮습니다. <b>턴수를 바꿨을 때 어느 쪽이 나은지 견주는 용도</b>로만 보십시오</li>
       <li>자기포화와 인덕턴스의 전류 의존성을 무시합니다</li>
       <li>약계자(field weakening) 를 쓰지 않는 조건입니다. 쓰면 더 올라갑니다</li>
       <li>정현파 구동 · 3상 평형 · Ld = Lq 를 가정합니다 (표면부착형 기준)</li>
@@ -414,26 +620,37 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
   function read(){
     var i = {};
     i.vdc   = +$("vdc").value;
-    i.k     = $("mod").value === "custom" ? +$("kman").value : +$("mod").value;
+    i.k     = +$("kman").value;
     i.T     = +$("trq").value * +$("trqU").value;
     i.tgt   = +$("tgt").value;
     i.p     = Math.max(1, Math.round(+$("poles").value / 2));
 
     var b = +$("bemf").value, m = $("bemfU").value;
     // Ke -> volts per rpm, phase, peak
-    if      (m === "ke_mv")   i.Ke = b / 1000;
-    else if (m === "kv")      i.Ke = b > 0 ? 1 / b : 0;
-    else if (m === "ke_vk")   i.Ke = b / 1000;
-    else if (m === "vpp")     i.Ke = b / 2 / 1000;
-    else if (m === "vrms")    i.Ke = b * Math.SQRT2 / 1000;
-    else                      i.Ke = b * Math.SQRT2 / Math.sqrt(3) / 1000;
+    var R3 = Math.sqrt(3);
+    if      (m === "ke_mv")    i.Ke = b / 1000;                        // mV/rpm 상 첨두
+    else if (m === "ke_vk")    i.Ke = b / 1000;                        // V/1000rpm 상 첨두
+    else if (m === "kv")       i.Ke = b > 0 ? 1 / b : 0;               // Kv
+    else if (m === "mvrms")    i.Ke = b / 1000 * Math.SQRT2 / 1000;    // mVrms 상
+    else if (m === "mvrms_ll") i.Ke = b / 1000 * Math.SQRT2 / R3 / 1000;
+    else if (m === "vrms")     i.Ke = b * Math.SQRT2 / 1000;           // Vrms 상
+    else if (m === "vrms_ll")  i.Ke = b * Math.SQRT2 / R3 / 1000;
+    else if (m === "vpp")      i.Ke = b / 2 / 1000;                    // Vpp 상
+    else                       i.Ke = b / 2 / R3 / 1000;               // Vpp 선간
 
     var rp = $("resU").value.split("|");
     i.R = +$("res").value * +rp[0] * +rp[1];
     var lp = $("indU").value.split("|");
     i.L = +$("ind").value * +lp[0] * +lp[1];
 
-    i.n = +$("turns").value / 100;
+    i.tw = Math.min(180, Math.max(20, +$("wTemp").value || 20));
+    i.cs = Math.min(100, Math.max(5, +$("cuShare").value || 45)) / 100;
+    var _em = parseFloat($("effMeas").value), _er = parseFloat($("effRpm").value);
+    i.em = (isFinite(_em) && _em > 0 && _em < 100) ? _em/100 : 0;
+    i.er = (isFinite(_er) && _er > 0) ? _er : 0;
+    i.tb = +$("turnsBase").value || 1;
+    i.tn = +$("turnsNew").value || 1;
+    i.n  = i.tn / i.tb;
     return i;
   }
 
@@ -490,7 +707,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
     // labels
     e.push('<text x="'+(ox+x/2).toFixed(1)+'" y="'+(oy+15)+'" text-anchor="middle" fill="var(--muted)" font-family="IBM Plex Mono, monospace" font-size="9.5">E + R·I</text>');
     if (y > 22) e.push('<text x="'+(tipx+6).toFixed(1)+'" y="'+(oy-y/2+3).toFixed(1)+'" fill="var(--muted)" font-family="IBM Plex Mono, monospace" font-size="9.5">ωL·I</text>');
-    e.push('<text x="'+(ox+6)+'" y="16" fill="var(--signal)" font-family="IBM Plex Mono, monospace" font-size="9.5">천장 V가용 '+fmt(s.Va,1)+' V</text>');
+    e.push('<text x="'+(ox+6)+'" y="16" fill="var(--signal)" font-family="IBM Plex Mono, monospace" font-size="9.5">상전압 최대치 V가용 '+fmt(s.Va,1)+' V</text>');
     e.push('<text x="'+(ox+8)+'" y="'+(oy-Math.max(y,14)/2-8).toFixed(1)+'" fill="'+hue+'" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600">'+fmt(q.Vreq,1)+' V</text>');
     return e.join("");
   }
@@ -503,10 +720,35 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
   /* --- render --- */
   function render(){
     var i = read();
-    $("krow").hidden = $("mod").value !== "custom";
 
-    var s = solve(i.Ke, i.R, i.L, i.p, i.T, i.vdc, i.k);
+    i.R = i.R * (1 + 0.00393*(i.tw - 20));      // 상온 20℃ 측정값을 운전 온도로
+    var nT = i.n;
+    var s0 = solve(i.Ke, i.R, i.L, i.p, i.T, i.vdc, i.k);
+    var s  = solve(i.Ke*nT, i.R*nT*nT, i.L*nT*nT, i.p, i.T, i.vdc, i.k);
     var Nmax = s.N;
+
+    // 단위를 잘못 고르면 여기서 바로 보인다
+    (function(){
+      var lam = i.Ke / (TAU*i.p/60), Kt = 1.5*i.p*lam, Ipk = Kt > 0 ? i.T/Kt : 0;
+      var e = $("echoKe");
+      var vpk = i.Ke*1000;                       // 1000rpm 상 첨두 V
+      var R3b = Math.sqrt(3);
+      if (e) e.innerHTML =
+          '<b>1000 rpm 에서 이만큼 나온다는 뜻입니다</b> <span style="color:var(--faint)">(측정 턴수 기준)</span><br>'
+        + '상 &nbsp; <b>' + fmt(vpk/Math.SQRT2,3) + ' Vrms</b>'
+        + ' = ' + fmt(vpk*2,3) + ' Vpp'
+        + '<br>선간 <b>' + fmt(vpk*R3b/Math.SQRT2,3) + ' Vrms</b>'
+        + ' = ' + fmt(vpk*2*R3b,3) + ' Vpp'
+        + '<br>Ke <b>' + fmt(i.Ke*1000,4) + ' mV/rpm</b> (상 첨두)'
+        + ' &nbsp;·&nbsp; Kt <b>' + fmt(Kt,4) + ' N&middot;m/A</b>'
+        + ' &nbsp;·&nbsp; 이 토크에 필요한 상전류 <b>' + fmt(Ipk,2) + ' A 첨두</b>'
+        + ' (' + fmt(Ipk/Math.SQRT2,2) + ' Arms)'
+        + (Ipk > 40 ? '<br><span class="warn">전류가 지나치게 큽니다 &mdash; 단위를 다시 보십시오</span>' : '');
+      var e2 = $("echoRL");
+      if (e2) e2.innerHTML =
+          '넣으신 값 &rarr; <b>상저항 ' + fmt(i.R*1000,2) + ' m&Omega;</b> &nbsp;·&nbsp; <b>상인덕턴스 '
+        + fmt(i.L*1e6,0) + ' &micro;H</b>';
+    })();
 
     $("nmax").innerHTML = (isFinite(Nmax) ? fmt(Nmax,0) : "해 없음") + '<em>rpm</em>';
 
@@ -556,53 +798,204 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
     var Irms = s.I / Math.SQRT2;
     var Pcu = 1.5 * s.R * s.I * s.I;
     var Pout = i.T * (isFinite(Nmax) ? Nmax : 0) * TAU / 60;
-    var c = "";
-    function kvrow(ko, en, val, unit){
-      c += '<dt>'+ko+'<span>'+en+'</span></dt><dd>'+val+' <em>'+unit+'</em></dd>';
-    }
-    kvrow("Kv","Speed constant", fmt(Kv,1), "rpm/V");
-    kvrow("Ke","Back-EMF · phase peak", fmt(s.Ke*1000,3), "mV/rpm");
-    kvrow("Ke","Back-EMF · phase peak", fmt(s.Ke*2000,3), "Vpp@1krpm");
-    kvrow("Kt","Torque · per amp peak", fmt(s.Kt,4), "N·m/A");
-    kvrow("Kt","Torque · per amp rms", fmt(s.Kt*Math.SQRT2,4), "N·m/Arms");
-    kvrow("λ","Flux linkage", fmt(s.lam,5), "Wb");
-    c += '<div class="sep"></div>';
-    kvrow("극쌍수 p","Pole pairs", i.p, "");
-    kvrow("상전류 첨두","Phase current peak", fmt(s.I,2), "A");
-    kvrow("상전류 실효","Phase current rms", fmt(Irms,2), "Arms");
-    kvrow("동손","Copper loss  1.5·R·Ipk²", fmt(Pcu,1), "W");
-    kvrow("축 출력 @최대","Shaft power at max speed", fmt(Pout,1), "W");
-    $("consts").innerHTML = c;
+    var n = i.n, dT = i.tn - i.tb, changed = (dT !== 0);
+    var Pcu0  = 1.5 * s0.R * s0.I * s0.I;
+    var Pout0 = i.T * (isFinite(s0.N) ? s0.N : 0) * TAU / 60;
+    var effCu  = (Pout  + Pcu ) > 0 ? Pout /(Pout +Pcu )*100 : 0;   // 동손만
+    var effCu0 = (Pout0 + Pcu0) > 0 ? Pout0/(Pout0+Pcu0)*100 : 0;
+    // 실측이 있으면 그 한 점에서 동손 비중을 역산, 없으면 기본값을 쓴다
+    var useMeas = (i.em > 0 && i.er > 0);
+    var PoutM = useMeas ? i.T * i.er * TAU / 60 : 0;
+    var LtotM = useMeas ? PoutM * (1/i.em - 1) : 0;
+    var share = (useMeas && LtotM > 0) ? Math.min(1, Pcu / LtotM) : i.cs;
+    var Ltot   = share > 0 ? Pcu  / share : 0;
+    var Ltot0  = share > 0 ? Pcu0 / share : 0;
+    var effAll  = (Pout  + Ltot ) > 0 ? Pout /(Pout +Ltot )*100 : 0;
+    var effAll0 = (Pout0 + Ltot0) > 0 ? Pout0/(Pout0+Ltot0)*100 : 0;
 
-    // turns what-if
-    var n = i.n;
-    var s2 = solve(s.Ke*n, s.R*n*n, s.L*n*n, i.p, i.T, i.vdc, i.k);
-    var Pcu2 = 1.5 * s2.R * s2.I * s2.I;
-    var t = "";
-    function trow(ko, en, base, now, unit, dec, invert){
-      var d = base !== 0 ? (now-base)/base*100 : 0;
-      var cls = (invert ? d > 0.05 : d < -0.05) ? "delta up" : "delta";
-      var ds = Math.abs(d) < 0.05 ? '<em>변화 없음</em>'
-             : '<span class="'+cls+'">'+(d>0?"+":"")+fmt(d,1)+'%</span>';
-      t += '<dt>'+ko+'<span>'+en+'</span></dt><dd>'+fmt(now,dec)+' <em>'+unit+'</em> &nbsp;'+ds+'</dd>';
+    var box = "";
+    function row(ko, en, val, unit, dec, base, invert){
+      var shown = (typeof val === "number") ? fmt(val, dec) : val;
+      var ds = "";
+      if (changed && typeof base === "number" && typeof val === "number" && base !== 0){
+        var d = (val-base)/base*100;
+        ds = (Math.abs(d) < 0.05) ? ' &nbsp;<em>변화 없음</em>'
+           : ' &nbsp;<span class="' + ((invert ? d > 0 : d < 0) ? "delta up" : "delta")
+             + '">' + (d>0?"+":"") + fmt(d,1) + '%</span>';
+      }
+      box += '<dt>'+ko+'<span>'+en+'</span></dt><dd>'+shown+' <em>'+unit+'</em>'+ds+'</dd>';
     }
-    t += '<dt style="font-weight:600;color:var(--ink)">턴수 '+fmt(n*100,0)+'%<span>Turns ratio n = '+fmt(n,3)+'</span></dt><dd></dd>';
-    t += '<div class="sep"></div>';
-    trow("역기전압 Ke","× n", s.Ke*1000, s2.Ke*1000, "mV/rpm", 3, true);
-    trow("저항 R","× n²", s.R*1000, s2.R*1000, "mΩ", 1, true);
-    trow("인덕턴스 L","× n²", s.L*1e6, s2.L*1e6, "µH", 0, true);
-    trow("상전류 첨두","× 1/n", s.I, s2.I, "A", 2, true);
-    trow("동손","≈ 불변  practically unchanged", Pcu, Pcu2, "W", 1, true);
-    t += '<div class="sep"></div>';
-    trow("최대 회전수","Max speed", Nmax, s2.N, "rpm", 0, false);
-    $("turnsOut").innerHTML = t;
+    function head(){
+      if (!changed) return "";
+      return '<dt style="font-weight:600;color:var(--ink)">'+i.tb+'T &rarr; '+i.tn+'T'
+           + ' <span style="color:var(--copper)">('+(dT>0?'+':'')+dT+'T)</span>'
+           + '<span>값은 '+i.tn+'T · 옆의 % 는 측정 '+i.tb+'T 대비</span></dt><dd></dd>'
+           + '<div class="sep"></div>';
+    }
+    var lab = changed ? ("측정 " + i.tb + "T → 지금 " + i.tn + "T") : ("측정 " + i.tb + "T 그대로");
+    $("constsLab").textContent = lab;
+    $("perfLab").textContent = lab;
+
+    // 모터 상수
+    box = head();
+    var SR2 = Math.SQRT2, SR3 = Math.sqrt(3);
+    row("역기전압 · 상","1000 rpm 에서 재면 · 상", s.Ke*1000/SR2, "Vrms", 3, s0.Ke*1000/SR2, true);
+    row("역기전압 · 선간","1000 rpm 에서 재면 · 선간", s.Ke*1000*SR3/SR2, "Vrms", 3, s0.Ke*1000*SR3/SR2, true);
+    row("역기전압 상수 Ke","Back-EMF constant · 상 첨두", s.Ke*1000, "mV/rpm", 3, s0.Ke*1000, true);
+    row("토크 상수 Kt","Torque · per amp peak", s.Kt, "N·m/A", 4, s0.Kt, true);
+    row("쇄교자속 λ","Flux linkage", s.lam, "Wb", 5, s0.lam, true);
+    row("상저항 R","Phase resistance", s.R*1000, "mΩ", 1, s0.R*1000, true);
+    row("상인덕턴스 L","Phase inductance", s.L*1e6, "µH", 0, s0.L*1e6, true);
+    box += '<div class="sep"></div>';
+    row("극쌍수 p","Pole pairs", i.p, "", 0);
+    row("Kv","Speed constant", Kv, "rpm/V", 1, null);
+    $("consts").innerHTML = box;
+
+    // 운전 결과
+    box = head();
+    row("최대 회전수","Max speed", s.N, "rpm", 0, s0.N, false);
+    row("축 출력 @최대","Shaft power at max speed", Pout, "W", 1, Pout0, false);
+    box += '<div class="sep"></div>';
+    row("상전류 첨두","Phase current peak", s.I, "A", 2, s0.I, true);
+    row("상전류 실효","Phase current rms", Irms, "Arms", 2, s0.I/Math.SQRT2, true);
+    row("동손","Copper loss  1.5·R·Ipk²", Pcu, "W", 1, Pcu0, true);
+    row("총 손실 (추정)","Total loss @최대 회전수", Ltot, "W", 1, Ltot0, true);
+    box += '<div class="sep"></div>';
+    row("모터만 · 동손 기준","Motor only — 동손만 본 상한", effCu, "%", 1, effCu0, false);
+    row("제어기까지 · 추정","System — 모터 + 제어기", effAll, "%", 1, effAll0, false);
+    $("perf").innerHTML = box;
+
+    // ── 사인파 그림 : 입력값이 그대로 들어간다
+    (function(){
+      var box = $("figWave"); if (!box) return;
+      var Va = s.Va;                                   // 가용 상전압 (첨두)
+      var Ntgt = Math.min(i.tgt, isFinite(Nmax) ? Nmax : i.tgt);
+      var qL = at(s, Ntgt), qR = at(s, isFinite(Nmax) ? Nmax : 0);
+
+      var W = 250, CY = 152, HALF = 70;                // HALF = 가용 전압 자리
+      function wave(ox, q, N, title, tone){
+        var sc = Va > 0 ? HALF / Va : 0;
+        var amp = Math.min(q.Vreq * sc, HALF);
+        var eY  = Math.min(q.E * sc, HALF);
+        var g = [], d, x, th, y, ph, cls, k;
+        for (k = 0; k < 3; k++){
+          ph = k * 120; cls = k === 0 ? "u" : "v"; d = [];
+          for (x = 0; x <= W; x += 4){
+            th = x / W * 720 + ph;
+            y  = CY - amp * Math.sin(th * Math.PI / 180);
+            d.push((x === 0 ? "M" : "L") + (ox + x) + " " + y.toFixed(1));
+          }
+          g.push('<path class="' + cls + '" d="' + d.join(" ") + '"/>');
+        }
+        var col = tone === "ok" ? "var(--signal)" : "var(--crit)";
+        var out = ['<g>',
+          '<text class="tb" x="' + ox + '" y="22" fill="' + col + '">' + title + '</text>',
+          '<text class="t" x="' + ox + '" y="40">' + fmt(N,0) + ' rpm</text>',
+          '<line class="ax" x1="'+ox+'" y1="'+CY+'" x2="'+(ox+W)+'" y2="'+CY+'"/>',
+          '<line class="lim" x1="'+ox+'" y1="'+(CY-HALF)+'" x2="'+(ox+W)+'" y2="'+(CY-HALF)+'"/>',
+          '<line class="lim" x1="'+ox+'" y1="'+(CY+HALF)+'" x2="'+(ox+W)+'" y2="'+(CY+HALF)+'"/>',
+          '<line class="bem" x1="'+ox+'" y1="'+(CY-eY)+'" x2="'+(ox+W)+'" y2="'+(CY-eY)+'"/>'];
+        out = out.concat(g);
+        // 글자에 바탕을 깔아 파형에 안 묻히게 한다
+        function tag(x, y, txt, color, anchor){
+          var w = txt.replace(/&[a-z]+;/g, "x").length * 6.3 + 10;
+          var rx = anchor === "end" ? x - w : x;
+          return '<rect x="'+rx+'" y="'+(y-11)+'" width="'+w+'" height="15" rx="2" '
+               + 'fill="var(--surface)" opacity=".92"/>'
+               + '<text class="t" x="'+(anchor === "end" ? x-5 : x+5)+'" y="'+y+'" '
+               + 'text-anchor="'+anchor+'" fill="'+color+'">'+txt+'</text>';
+        }
+        // 쓸 수 있는 전압 — 위 점선 바로 위, 오른쪽
+        out.push(tag(ox+W, CY-HALF-6, '쓸 수 있는 전압 ' + fmt(Va,1) + ' V', 'var(--signal)', 'end'));
+        // 역기전압 — 제 점선 옆.  최대치에 가까우면 선 아래로 내린다
+        var near = (HALF - eY) < 24;
+        out.push(tag(ox+2, CY - eY + (near ? 16 : -5),
+                 '역기전압 ' + fmt(q.E,1) + ' V · ' + fmt(q.E/Va*100,0) + '%', 'var(--copper)', 'start'));
+        out.push('<text class="t" x="'+(ox+W)+'" y="'+(CY+HALF+22)+'" text-anchor="end" fill="var(--faint)">시간</text>');
+        out.push('</g>');
+        return out.join("");
+      }
+
+      var svg = '<svg viewBox="0 0 660 250" style="width:100%;height:auto;display:block" role="img"'
+        + ' aria-label="목표 회전수와 최대 회전수에서의 상전압 파형">'
+        + '<defs><style>'
+        + '.ax{stroke:var(--line-strong);stroke-width:1.2}'
+        + '.lim{stroke:var(--signal);stroke-width:1.8;stroke-dasharray:6 4}'
+        + '.bem{stroke:var(--copper);stroke-width:1.2;stroke-dasharray:3 3;opacity:.85}'
+        + '.u{stroke:var(--copper);stroke-width:2.4;fill:none}'
+        + '.v{stroke:var(--copper);stroke-width:1.2;fill:none;opacity:.35}'
+        + '.t{font-family:"IBM Plex Sans KR",sans-serif;font-size:11.5px;fill:var(--muted)}'
+        + '.tb{font-family:"IBM Plex Sans KR",sans-serif;font-size:12.5px;font-weight:600}'
+        + '</style></defs>'
+        + wave(40,  qL, Ntgt, "목표 회전수", "ok")
+        + wave(370, qR, isFinite(Nmax)?Nmax:0, "최대 회전수", "max")
+        + '</svg>';
+
+      var pct  = Va > 0 ? qL.E / Va * 100 : 0;
+      var rest = 100 - pct;
+      var rawV = $("bemf").value;
+      var uSel = $("bemfU");
+      var uTxt = uSel.options[uSel.selectedIndex].text;
+      var pk1k = i.Ke * 1000;                       // 1000 rpm 에서의 상 첨두
+      var mul  = Ntgt / 1000;
+      var cap = '<figcaption>'
+        + '<b>넣으신 역기전압이 그림에서 어떻게 되는가</b><br>'
+        + '&nbsp;&nbsp;' + rawV + ' <span style="color:var(--faint)">(' + uTxt + ')</span>'
+        + ' &nbsp;&rarr;&nbsp; 1000 rpm 에서 상 첨두 <b>' + fmt(pk1k,1) + ' V</b>'
+        + ' &nbsp;&rarr;&nbsp; ' + fmt(Ntgt,0) + ' rpm 이면 ' + fmt(mul,1) + '배 = <b>'
+        + fmt(qL.E,1) + ' V</b> &nbsp;<span style="color:var(--faint)">(그림의 주황 점선)</span><br><br>'
+        + '<b>' + fmt(i.vdc,0) + ' V 를 넣으면 상에 걸 수 있는 전압은 ' + fmt(Va,1) + ' V 입니다.</b>'
+        + ' &nbsp;<span style="color:var(--faint)">' + fmt(i.vdc,0) + ' &times; ' + fmt(i.k,3)
+        + ' &nbsp;·&nbsp; 실효값으로 ' + fmt(Va/Math.SQRT2,1) + ' V</span><br>'
+        + '이 ' + fmt(Va,1) + ' V 를 <b>역기전압 · 저항 몫 · 인덕턴스 몫</b>이 나눠 씁니다.<br>'
+        + '목표 ' + fmt(Ntgt,0) + ' rpm 에서 역기전압이 <b>' + fmt(qL.E,1) + ' V — 전체의 '
+        + fmt(pct,0) + '%</b>. 남은 <b>' + fmt(rest,0) + '%</b> 를 저항과 인덕턴스가 가져갑니다.<br><br>'
+        + '<b style="color:var(--crit)">그래서 역기전압은 목표 회전수에서 이 선보다 충분히 낮게 설계해야 합니다.</b>'
+        + ' 너무 높게 잡으면 저항·인덕턴스가 들어갈 자리가 없어져 목표 속도가 안 나옵니다.<br>'
+        + '<span style="color:var(--faint)">역기전압을 낮추려면 권선 턴수를 줄입니다. '
+        + '대신 같은 토크에 전류가 늘어납니다 — 공짜가 아닙니다.</span>'
+        + '</figcaption>';
+      box.innerHTML = svg + cap;
+    })();
+
+    (function(){
+      var e = $("echoMod"); if (!e) return;
+      var sl = $("mod"), lab = sl.options[sl.selectedIndex].text;
+      e.innerHTML = '입력값 <b>k = ' + fmt(i.k,3) + '</b> &rarr; 상전압 <b>' + fmt(s.Va,1) + ' V</b>'
+        + ' <span style="color:var(--faint)">(' + fmt(s.Va/Math.SQRT2,1) + ' Vrms)</span>';
+    })();
+
+    var el2 = $("echoLoss");
+    if (el2) el2.innerHTML = useMeas
+      ? ('실측을 넣으셨습니다. ' + fmt(i.er,0) + ' rpm 에서 축 출력 <b>' + fmt(PoutM,1) + ' W</b>,'
+         + ' 전체 손실 <b>' + fmt(LtotM,1) + ' W</b> 입니다.'
+         + '<br>그중 동손이 <b>' + fmt(Pcu,1) + ' W</b> 이므로 <b>동손 비중은 ' + fmt(share*100,1) + '%</b> 입니다.'
+         + '<br><span style="color:var(--signal)">경험값 대신 이 값을 씁니다 — 위 「동손 비중」 칸은 안 쓰입니다.</span>')
+      : ('권선이 ' + fmt(i.tw,0) + '&deg;C 면 상저항이 <b>' + fmt(i.R*1000,1) + ' m&Omega;</b> 가 되고,'
+         + ' 여기서 <b>동손 ' + fmt(Pcu,1) + ' W</b> 가 나옵니다. <span style="color:var(--faint)">여기까지는 계산입니다.</span>'
+         + '<br>이 동손이 전체 손실의 <b>' + fmt(share*100,0) + '%</b> 라고 보면'
+         + ' &rarr; 전체 손실 <b>' + fmt(Ltot,1) + ' W</b>'
+         + ' &rarr; 모터+제어기 효율 <b>' + fmt(effAll,1) + '%</b>'
+         + '<br><span style="color:var(--crit)">' + fmt(share*100,0) + '% 는 계산이 아니라 경험값입니다.</span>'
+         + ' <span style="color:var(--faint)">철손 · 기계손 · 제어기 손실은 식으로 못 구합니다.'
+         + ' 정확히 보시려면 아래 「실측 효율」에 실제로 잰 값을 넣으십시오.</span>');
+
+    var et = $("echoTurns");
+    if (et) et.innerHTML = (!changed
+        ? '<b>' + i.tb + 'T 그대로</b> — 오른쪽 칸을 바꾸면 결과와 페이저가 같이 움직입니다'
+        : '<b>' + i.tb + 'T &rarr; ' + i.tn + 'T</b>'
+          + ' &nbsp;(' + (dT>0?'+':'') + dT + 'T · ' + fmt((n-1)*100,1) + '%)'
+          + ' &nbsp;&rarr;&nbsp; 최대 회전수 <b>' + (isFinite(s.N) ? fmt(s.N,0) : '—') + ' rpm</b>'
+          + (isFinite(s.N) && isFinite(s0.N) ? ' <span style="color:var(--copper)">(' + (s.N>=s0.N?'+':'') + fmt(s.N-s0.N,0) + ')</span>' : '')
+          + (isFinite(s.N) && s.N >= i.tgt ? ' &nbsp;<b style="color:var(--signal)">목표 달성</b>'
+             : ' &nbsp;<span style="color:var(--crit)">목표까지 ' + fmt(i.tgt-s.N,0) + ' rpm</span>'));
 
     // advice line
     var a = $("advice");
     if (!isFinite(Nmax)){
-      a.innerHTML = '<b>해가 없습니다.</b> 부하 토크에 필요한 전류가 만드는 저항 전압강하만으로 이미 천장을 넘습니다. 토크를 줄이거나 전압을 올리십시오.';
+      a.innerHTML = '<b>해가 없습니다.</b> 부하 토크에 필요한 전류가 만드는 저항 전압강하만으로 이미 상전압 최대치를 넘습니다. 토크를 줄이거나 전압을 올리십시오.';
     } else if (Nmax >= i.tgt){
-      a.innerHTML = '<b>목표를 만족합니다.</b> 여유 '+fmt(Nmax-i.tgt,0)+' rpm 입니다. 최저 동작 전압에서도 성립하는지 확인하십시오 — 전압이 내려가면 천장도 같이 내려갑니다.';
+      a.innerHTML = '<b>목표를 만족합니다.</b> 여유 '+fmt(Nmax-i.tgt,0)+' rpm 입니다. 최저 동작 전압에서도 성립하는지 확인하십시오 — Vdc 가 내려가면 상전압 최대치도 같이 내려갑니다.';
     } else {
       var needKe = s.Ke > 0 ? (function(){
         var lo=0.01, hi=s.Ke*3, mid;
@@ -623,22 +1016,161 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
         }
         return hi;
       })() : 0;
-      a.innerHTML = '<b>천장에 먼저 닿습니다.</b> 목표 '+fmt(i.tgt,0)+' rpm 까지 '+fmt(i.tgt-Nmax,0)+' rpm 모자랍니다. '
+      a.innerHTML = '<b>상전압 최대치에 먼저 닿습니다.</b> 목표 '+fmt(i.tgt,0)+' rpm 까지 '+fmt(i.tgt-Nmax,0)+' rpm 모자랍니다. '
         + '방법은 셋뿐입니다 — 공급 전압을 <b>'+fmt(needV,1)+' V</b> 로 올리거나, 전압 이용률 k 를 올리거나(변조 방식 변경), '
         + '역기전압을 <b>'+fmt(pct,1)+'%</b> 낮추는 것입니다. 마지막은 권선 턴수를 그만큼 줄인다는 뜻입니다 — 왼쪽 What-if 에 넣어 보십시오.';
     }
   }
 
-  ["vdc","mod","kman","trq","trqU","tgt","bemf","bemfU","poles","res","resU","ind","indU","turns","sweep"]
+  /* --- 결과 내려받기 : 엑셀(.xlsx).  라이브러리를 못 받으면 CSV 로 --- */
+  (function(){
+    var btn = document.getElementById("dlCsv"); if (!btn) return;
+    var CDN = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+
+    function selTxt(id){ var e = $(id); return e ? e.options[e.selectedIndex].text : ""; }
+    function plain(el){ return el ? el.innerText.replace(/\s+/g, " ").trim() : ""; }
+
+    /* "18.99 A" -> [18.99, "A"] · "4,729 rpm" -> [4729, "rpm"] · 숫자 없으면 [원문, ""] */
+    function split(v){
+      var m = String(v).replace(/,/g, "").match(/^(-?\d+(?:\.\d+)?)\s*(.*)$/);
+      return m ? [parseFloat(m[1]), m[2].trim()] : [v, ""];
+    }
+    function num(v){ var n = parseFloat(String(v).replace(/,/g, "")); return isFinite(n) ? n : v; }
+
+    function kvRows(id){
+      var out = [], dl = $(id); if (!dl) return out;
+      var kids = dl.children, ko = "", en = "", i, sp, t;
+      for (i = 0; i < kids.length; i++){
+        if (kids[i].tagName === "DT"){
+          sp = kids[i].querySelector("span");
+          en = sp ? plain(sp) : "";
+          ko = plain(kids[i]);
+          if (en) ko = ko.replace(en, "").trim();
+        } else if (kids[i].tagName === "DD"){
+          t = plain(kids[i]);
+          if (ko && t){ var p = split(t); out.push([ko, p[0], p[1], en]); }
+          ko = en = "";
+        }
+      }
+      return out;
+    }
+
+    function build(){
+      var L = [];
+      function head(t){ L.push([]); L.push([t]); L.push(["항목","값","단위","설명"]); }
+      function row(a,b,c,d){ L.push([a, b, c || "", d || ""]); }
+
+      L.push(["BLDC 최대 회전수 계산기 — 결과"]);
+      L.push(["받은 날", new Date().toLocaleString("ko-KR")]);
+
+      head("입력");
+      row("공급 전압", num($("vdc").value), "V", "제어기에 들어가는 DC 전압");
+      row("변조 방식", selTxt("mod"), "", "인버터가 Vdc 를 상전압으로 쓰는 방식");
+      row("전압 이용률 k", num($("kman").value), "", "상전압 첨두 ÷ Vdc");
+      row("부하 토크", num($("trq").value), selTxt("trqU"), "축에 걸리는 토크");
+      row("목표 회전수", num($("tgt").value), "rpm", "달성 여부 판정용");
+      row("역기전압 상수", num($("bemf").value), selTxt("bemfU"), "측정 보고서의 BEMF");
+      row("극수", num($("poles").value), "P", "극쌍수가 아님");
+      row("상저항", num($("res").value), selTxt("resU"), "한 상의 저항");
+      row("상인덕턴스", num($("ind").value), selTxt("indU"), "한 상의 인덕턴스");
+      row("권선 턴수 (측정)", num($("turnsBase").value), "T", "위 값들을 잰 권선");
+      row("권선 턴수 (계산)", num($("turnsNew").value), "T", "이 권선으로 계산함");
+      row("권선 온도", num($("wTemp").value), "°C", "상저항을 이 온도로 보정");
+      row("동손 비중", num($("cuShare").value), "%", "경험값 · 실측을 넣으면 안 씀");
+      row("실측 효율", $("effMeas").value ? num($("effMeas").value) : "—", "%", "모터+제어기");
+      row("실측 회전수", $("effRpm").value ? num($("effRpm").value) : "—", "rpm", "위 효율을 잰 운전점");
+
+      head("결과");
+      var nm = split(plain($("nmax")));
+      row("최대 회전수", nm[0], nm[1] || "rpm", "이 조건에서 낼 수 있는 한계");
+      row("목표 대비", plain($("verdict")), "", "");
+
+      head("전압 성분 @최대 회전수");
+      (function(){
+        var tb = $("brk"); if (!tb) return;
+        for (var r = 0; r < tb.rows.length; r++){
+          var c = tb.rows[r].cells;
+          var ko = plain(c[0]), sp = c[0].querySelector("span"), en = sp ? plain(sp) : "";
+          if (en) ko = ko.replace(en, "").trim();
+          var p = split(plain(c[1]));
+          L.push([ko, p[0], p[1], c[2] ? plain(c[2]) : ""]);
+        }
+      })();
+
+      head("모터 상수");
+      kvRows("consts").forEach(function(r){ L.push(r); });
+
+      head("운전 결과");
+      kvRows("perf").forEach(function(r){ L.push(r); });
+
+      L.push([]);
+      L.push(["※ 개념 확인과 초기 검토용입니다. 설계 근거로 그대로 쓰지 마십시오."]);
+      return L;
+    }
+
+    function fname(ext){
+      return "BLDC_최대회전수_" + $("vdc").value + "V_" + $("turnsNew").value + "T." + ext;
+    }
+    function save(blob, name){
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+    function csvFallback(L){
+      function esc(v){ v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+      var csv = L.map(function(r){ return r.map(esc).join(","); }).join("\r\n");
+      save(new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8;"}), fname("csv"));
+    }
+
+    btn.addEventListener("click", function(){
+      var L = build();
+      function write(){
+        try {
+          var ws = XLSX.utils.aoa_to_sheet(L);
+          ws["!cols"] = [{wch:24},{wch:13},{wch:11},{wch:38}];
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "계산 결과");
+          XLSX.writeFile(wb, fname("xlsx"));
+        } catch(e){ csvFallback(L); }
+      }
+      if (window.XLSX) return write();
+      btn.disabled = true; btn.textContent = "엑셀 파일 만드는 중…";
+      var sc = document.createElement("script");
+      sc.src = CDN;
+      sc.onload  = function(){ btn.disabled = false; btn.textContent = "결과 내려받기 (엑셀)"; write(); };
+      sc.onerror = function(){ btn.disabled = false; btn.textContent = "결과 내려받기 (엑셀)"; csvFallback(L); };
+      document.head.appendChild(sc);
+    });
+  })();
+
+  ["vdc","mod","kman","trq","trqU","tgt","bemf","bemfU","poles","res","resU","ind","indU","turnsBase","turnsNew","wTemp","cuShare","effMeas","effRpm","sweep"]
     .forEach(function(id){
       var el = $(id);
       el.addEventListener("input", render);
       el.addEventListener("change", render);
     });
 
+  // 변조 방식을 고르면 k 가 채워지고, k 를 손으로 바꾸면 「직접 입력」이 된다
+  (function(){
+    var mod = $("mod"), k = $("kman");
+    mod.addEventListener("change", function(){
+      if (mod.value !== "custom"){ k.value = (+mod.value).toFixed(3); render(); }
+    });
+    function toCustom(){
+      var v = (+k.value).toFixed(3), hit = null, i;
+      for (i = 0; i < mod.options.length; i++)
+        if (mod.options[i].value !== "custom" && (+mod.options[i].value).toFixed(3) === v) hit = i;
+      mod.selectedIndex = (hit !== null) ? hit : mod.options.length - 1;
+    }
+    k.addEventListener("input", toCustom);
+    k.addEventListener("change", toCustom);
+  })();
+
   render();
 })();
 </script>
+
 <nav style="max-width:1180px;margin:0 auto;padding:0 20px 40px">
   <a href="/" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-decoration:none">&larr; designmargin &mdash; 전체 계산기 목록</a>
 </nav>

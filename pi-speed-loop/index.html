@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="모터 PI 속도루프의 목표 속도 도달·정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 시뮬레이션입니다.">
+<meta name="description" content="목표 속도까지 걸리는 시간과 정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 조건에서 봅니다.">
 <link rel="canonical" href="https://designmargin.github.io/pi-speed-loop/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="designmargin">
 <meta property="og:title" content="모터 PI 속도루프 계산기">
-<meta property="og:description" content="모터 PI 속도루프의 목표 속도 도달·정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 시뮬레이션입니다.">
+<meta property="og:description" content="목표 속도까지 걸리는 시간과 정착 시간을 계산합니다. 전류 포화와 안티와인드업을 넣은 조건에서 봅니다.">
 <meta property="og:url" content="https://designmargin.github.io/pi-speed-loop/">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary">
@@ -323,7 +323,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
       <li>속도 피드백의 분해능·필터 지연(홀센서·엔코더·센서리스 추정)을 넣지 않았습니다. 실제로는 이것이 대역폭을 제한하는 일이 많습니다</li>
       <li>이산화(샘플링 주기) 효과를 무시한 연속시간 모델입니다</li>
       <li>부하 토크를 일정하게 봅니다. 팬·펌프처럼 속도의 제곱에 비례하는 부하는 다르게 나옵니다</li>
-      <li>전압 천장(역기전압 포화)은 넣지 않았습니다 — 고속에서는 전류 제한보다 전압이 먼저 걸립니다</li>
+      <li>상전압 최대치(역기전압 포화)는 넣지 않았습니다 — 고속에서는 전류 제한보다 전압이 먼저 걸립니다</li>
     </ul>
 
     <p class="disc"><b>면책</b> — 개념 확인과 초기 검토용입니다. 실제 게인은 실기 튜닝으로 확정하십시오. 사용에 따른 결과에 대해 책임지지 않습니다. · <b>Disclaimer</b> — For concept checking and early-stage estimation only; confirm gains on real hardware.</p>
@@ -597,6 +597,7 @@ footer .eq{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)
   render();
 })();
 </script>
+
 <nav style="max-width:1180px;margin:0 auto;padding:0 20px 40px">
   <a href="/" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-decoration:none">&larr; designmargin &mdash; 전체 계산기 목록</a>
 </nav>
