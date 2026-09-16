@@ -7,11 +7,18 @@ Engineering calculators for design margin — voltage, current, thermal, timing.
 
 ## 계산기
 
+### 모터
+
 | | 주소 | 내용 |
 |---|---|---|
 | BLDC 최대 회전수 | `/bldc-speed/` | 이 전압에서 몇 rpm 까지 도는가. 역기전압 상·선간 여러 표기 입력 |
-| 전압 분배기 | `/voltage-divider/` | E12·E24·E96 실제 저항 조합 · 부하 · 오차 · 정격 |
 | 모터 PI 속도루프 | `/pi-speed-loop/` | 목표 속도 도달·정착 시간. 전류 포화 + 안티와인드업 |
+
+### 제어기
+
+| | 주소 | 내용 |
+|---|---|---|
+| 전압 분배기 | `/voltage-divider/` | E12·E24·E96 실제 저항 조합 · 부하 · 오차 · 정격 |
 
 ## 만든 방식
 

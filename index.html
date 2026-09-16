@@ -115,7 +115,7 @@ footer p{margin:0 0 8px}
     여기 있는 계산기들은 전부 <b>「무엇의 여유가 얼마나 남았는가」</b>를 계산합니다.
   </p>
 
-  <h2 class="sec">계산기 · Calculators</h2>
+  <h2 class="sec">모터 · Motor</h2>
   <ul class="list">
 
     <li class="card"><a href="/bldc-speed/">
@@ -123,15 +123,6 @@ footer p{margin:0 0 8px}
         <h3>BLDC 최대 회전수</h3>
         <div class="sub">BLDC / PMSM max speed · phase voltage limit</div>
         <p>이 모터가 이 전압에서 몇 rpm 까지 도는지 계산합니다. 역기전압을 <b>Vrms · Vpp · mV/rpm · Kv</b> 로, <b>상 · 선간</b>을 골라 넣습니다. 전압을 역기전압·저항·인덕턴스가 각각 얼마나 가져가는지 보여 주고, <b>권선 턴수를 바꾸면 결과가 같이 움직입니다.</b> 결과는 엑셀로 내려받습니다.</p>
-      </div>
-      <span class="go">열기 →</span>
-    </a></li>
-
-    <li class="card"><a href="/voltage-divider/">
-      <div>
-        <h3>전압 분배기</h3>
-        <div class="sub">Voltage divider · real E-series pairs</div>
-        <p>비율만 내주지 않습니다. <b>E12 · E24 · E96 계열에 실제로 있는 저항</b>으로 조합을 찾아 오차 순으로 보여 주고, 부하를 달았을 때의 전압 강하와 허용오차 범위, 각 저항의 소비전력과 정격 초과 여부까지 같이 봅니다.</p>
       </div>
       <span class="go">열기 →</span>
     </a></li>
@@ -147,14 +138,29 @@ footer p{margin:0 0 8px}
 
   </ul>
 
+  <h2 class="sec">제어기 · Controller</h2>
+  <ul class="list">
+
+    <li class="card"><a href="/voltage-divider/">
+      <div>
+        <h3>전압 분배기</h3>
+        <div class="sub">Voltage divider · real E-series pairs</div>
+        <p>전압을 낮출 때 쓰는 저항 두 개를 정해 줍니다. <b>E12 · E24 · E96 에 실제로 있는 값</b>으로 조합을 찾아 오차 순으로 보여 주고, 부하를 달았을 때의 전압 강하와 허용오차 범위, 각 저항의 소비전력과 정격 초과 여부까지 같이 봅니다.</p>
+      </div>
+      <span class="go">열기 →</span>
+    </a></li>
+
+  </ul>
+
   <h2 class="sec">준비 중 · Coming next</h2>
   <ul class="soon">
-    <li>CAN 비트 타이밍<span>Bit timing · sample point</span></li>
-    <li>션트 + 앰프 + ADC<span>Current sense chain</span></li>
-    <li>NTC 서미스터<span>Thermistor · B constant</span></li>
-    <li>열저항 → 정션 온도<span>Thermal chain · Tj</span></li>
-    <li>Kv ↔ Ke ↔ Kt 변환<span>Motor constants</span></li>
-    <li>권선 턴수 변경 영향<span>Turns ratio · n, n², 1/n</span></li>
+    <li>DC 모터 최대 RPM<span>모터 · Brushed DC max speed</span></li>
+    <li>Kv ↔ Ke ↔ Kt 변환<span>모터 · Motor constants</span></li>
+    <li>권선 턴수 변경 영향<span>모터 · Turns ratio · n, n², 1/n</span></li>
+    <li>CAN 비트 타이밍<span>제어기 · Bit timing · sample point</span></li>
+    <li>션트 + 앰프 + ADC<span>제어기 · Current sense chain</span></li>
+    <li>NTC 서미스터<span>열 · Thermistor · B constant</span></li>
+    <li>열저항 → 정션 온도<span>열 · Thermal chain · Tj</span></li>
   </ul>
 
   <h2 class="sec">이 사이트에 대해 · About</h2>
